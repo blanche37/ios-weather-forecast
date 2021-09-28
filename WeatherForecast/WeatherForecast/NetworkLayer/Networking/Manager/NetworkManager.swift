@@ -8,7 +8,18 @@
 import Foundation
 
 struct NetworkManager {
-    static var apiKey = "9cda367698143794391817f65f81c76e"
+    private var apiKey: String {
+        get {
+            guard let filePath = Bundle.main.path(forResource: "Info", ofType: "plist") else {
+                fatalError()
+            }
+            let plist = NSDictionary(contentsOfFile: filePath)
+            guard let value = plist?.object(forKey: "API_KEY") as? String else {
+                fatalError()
+            }
+            return value
+        }
+    }
     private let router = Router<WeatherApi>()
     
     enum NetworkResponseError: String {
