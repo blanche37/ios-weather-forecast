@@ -15,6 +15,7 @@ protocol NetworkRouter: AnyObject {
     func cancel()
 }
 
+// dataTask, datatDownloadTask, up-....
 
 class Router<EndPoint: EndPointType>: NetworkRouter {
 
