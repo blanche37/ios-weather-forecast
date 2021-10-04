@@ -12,8 +12,12 @@ class LocationManager: CLLocationManager {
     
     func askUserLocation() {
         self.requestWhenInUseAuthorization()
-        self.requestLocation()
+        
 //        self.distanceFilter = CLLocationDistanceMax
         self.desiredAccuracy = kCLLocationAccuracyThreeKilometers
+    }
+    
+    func test() {
+        self.requestLocation()
     }
 }

@@ -14,6 +14,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         super.viewDidLoad()
         locationManager.delegate = self
         locationManager.askUserLocation()
+        locationManager.test()
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -26,9 +27,35 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
         guard let locationValue: CLLocationCoordinate2D = manager.location?.coordinate else {
             return
         }
-        print("locations = \(locationValue.latitude) \(locationValue.longitude)")
-        print(locations)
+        lookUpCurrentLocation { place in
+            print(place?.name)
+        }
         
+    }
+    
+    func lookUpCurrentLocation(completionHandler: @escaping (CLPlacemark?)
+                    -> Void ) {
+        // Use the last reported location.
+        if let lastLocation = self.locationManager.location {
+            let geocoder = CLGeocoder()
+                
+            // Look up the location and pass it to the completion handler
+            geocoder.reverseGeocodeLocation(lastLocation,
+                        completionHandler: { (placemarks, error) in
+                if error == nil {
+                    let firstLocation = placemarks?[0]
+                    completionHandler(firstLocation)
+                }
+                else {
+                 // An error occurred during geocoding.
+                    completionHandler(nil)
+                }
+            })
+        }
+        else {
+            // No location was available.
+            completionHandler(nil)
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
@@ -39,6 +66,7 @@ class ViewController: UIViewController, CLLocationManagerDelegate {
             
         case .authorizedWhenInUse:
             enableMyLocationFeatures()
+            //locationManager.test()
             break
             
         case .authorizedAlways:
