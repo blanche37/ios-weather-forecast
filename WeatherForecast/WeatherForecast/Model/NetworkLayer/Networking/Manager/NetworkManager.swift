@@ -5,7 +5,7 @@
 //  Created by Do Yi Lee on 2021/09/28.
 //
 
-import Foundation
+import UIKit
 
 //protocol NetworkManagerDelegate {
 //    func decodeWeatherData(data: Data) -> FiveDaysForecast
@@ -44,8 +44,26 @@ final class NetworkManager {
     }
     
     func getWeatherData(with weatherAPI: WeatherApi, _ session: URLSession, _ completion: @escaping (Data) -> ()) {
-        router.request(weatherAPI, session) { data in
-            completion(data)
+        DispatchQueue.global().async {
+            self.router.request(weatherAPI, session) { data in
+                completion(data)
+            }
+        }
+    }
+    
+    func getImageData(url: URL, view: UIView?, completionHandler: @escaping (Data) -> ()) {
+        DispatchQueue.global().async {
+            do {
+                let data = try Data(contentsOf: url)
+                completionHandler(data)
+                if let view = view as? UITableView {
+                    DispatchQueue.main.async {
+                        view.reloadData()
+                    }
+                }
+            } catch {
+                fatalError()
+            }
         }
     }
 }

@@ -34,6 +34,7 @@ extension LocationManager: CLLocationManagerDelegate {
             in
             do {
                 self.currentData = try JSONDecoder().decode(CurrentWeather.self, from: requestedData)
+                completion()
             } catch {
                 print("Decode Error")
             }
@@ -53,7 +54,6 @@ extension LocationManager: CLLocationManagerDelegate {
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         let networkManager = NetworkManager()
-        
         guard let longitude = manager.location?.coordinate.longitude,
               let latitude = manager.location?.coordinate.latitude,
               let fiveDaysURL = URL(string: "https://api.openweathermap.org/data/2.5/forecast"),

@@ -10,6 +10,7 @@ import CoreLocation
 final class ViewController: UIViewController {
     //MARK: - Properties
     private let locationManager = LocationManager()
+    private let networkManager = NetworkManager()
     private let tableView = UITableView()
     private let tableViewHeaderView = UIView()
     private let currentWeatherImageView = UIImageView()
@@ -37,7 +38,6 @@ final class ViewController: UIViewController {
     private func setUpTableView() {
         tableView.delegate = self
         tableView.dataSource = self
-        tableView.tableHeaderView = tableViewHeaderView
         tableView.register(WeatherInfoCell.self, forCellReuseIdentifier: WeatherInfoCell.cellIdentifier)
     }
     
@@ -48,11 +48,24 @@ final class ViewController: UIViewController {
     }
     
     @objc func setupTableViewHeaderView(_ notification: Notification) {
-        self.addressLabel.text = self.locationManager.address
-        print("test")
-        tableViewHeaderView.becomeFirstResponder()
-        tableViewHeaderView.reloadInputViews()
-        //고민중..
+        guard let paramIcon = locationManager.currentData?.weather.first,
+              let imageURL = URL(string: "https://openweathermap.org/img/w/\(paramIcon.icon).png") else {
+                  return
+        }
+        let maxCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentData!.main.temperatureMaximum)
+        let minCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentData!.main.temperatureMinimum)
+        let currentCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentData!.main.temperature)
+        DispatchQueue.main.async {
+            self.addressLabel.text = self.locationManager.address
+            self.networkManager.getImageData(url: imageURL, view: nil) { data in
+                let image = UIImage(data: data)
+                DispatchQueue.main.async {
+                    self.currentWeatherImageView.image = image
+                }
+            }
+            self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
+            self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)"
+        }
     }
     
     private func setupBackgroundImage() {
@@ -62,6 +75,7 @@ final class ViewController: UIViewController {
     
     private func addSubviews() {
         view.addSubview(tableView)
+        tableView.tableHeaderView = tableViewHeaderView
         tableViewHeaderView.addSubview(currentWeatherImageView)
         tableViewHeaderView.addSubview(addressLabel)
         tableViewHeaderView.addSubview(temperatureRangeLabel)
@@ -85,7 +99,8 @@ final class ViewController: UIViewController {
         ])
         
         NSLayoutConstraint.activate([
-            tableViewHeaderView.heightAnchor.constraint(equalToConstant: 100)
+            tableViewHeaderView.heightAnchor.constraint(equalToConstant: 100),
+            tableViewHeaderView.widthAnchor.constraint(equalToConstant: tableView.bounds.width)
         ])
         
         NSLayoutConstraint.activate([
@@ -119,36 +134,40 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
               let item = locationManager.fiveDaysData,
               let ParamIcon = item.list[indexPath.row].weather.first else {
                   return UITableViewCell()
-        }
+              }
         
         let celsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: item.list[indexPath.row].main.temperature)
         let roundedNumber = round(celsius * 10) / 10
         let dateFormatter = DateFormatter()
-        dateFormatter.dateFormat = "MM/dd HH시"
+        var weatherImage: UIImage?
         guard let weatherImageURL = URL(string: "https://openweathermap.org/img/w/\(ParamIcon.icon).png") else {
             return UITableViewCell()
         }
-        
-        do {
-            let data = try Data(contentsOf: weatherImageURL)
+        self.networkManager.getImageData(url: weatherImageURL, view: self.tableView) { data in
             guard let image = UIImage(data: data) else {
-                return UITableViewCell()
+                return
+            }
+            weatherImage = image
+            guard let weatherImage = weatherImage else {
+                return
             }
             
-            fiveDaysWeatherImageCache.setObject(image, forKey: "\(ParamIcon.icon)" as NSString)
-            if let cachedImage = fiveDaysWeatherImageCache.object(forKey: "\(ParamIcon.icon)" as NSString) {
-                cell.weatherImageView.image = cachedImage
-            } else {
-                cell.weatherImageView.image = image
-            }
-            cell.backgroundColor = .clear
-            cell.selectionStyle = .none
-            cell.dateLabel.text = "\(dateFormatter.string(from: item.list[indexPath.row].date))"
-            cell.temperatureLabel.text = "\(roundedNumber)°"
-            return cell
-        } catch {
-            return UITableViewCell()
+            self.fiveDaysWeatherImageCache.setObject(weatherImage, forKey: "\(ParamIcon.icon)" as NSString)
         }
+        
+        dateFormatter.dateFormat = "MM/dd HH시"
+        
+        if let cachedImage = fiveDaysWeatherImageCache.object(forKey: "\(ParamIcon.icon)" as NSString) {
+            cell.weatherImageView.image = cachedImage
+        } else {
+            cell.weatherImageView.image = weatherImage
+        }
+        cell.backgroundColor = .clear
+        cell.selectionStyle = .none
+        cell.dateLabel.text = "\(dateFormatter.string(from: item.list[indexPath.row].date))"
+        cell.temperatureLabel.text = "\(roundedNumber)°"
+        return cell
+        
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
