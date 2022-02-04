@@ -13,7 +13,6 @@ final class LocationManager: CLLocationManager {
     var address: String?
     var fiveDaysWeatherInfo: FiveDaysForecast?
     var currentWeatherInfo: CurrentWeather?
-    private var alertController = FailureAlertController()
 
     private func askUserLocation() {
         self.requestWhenInUseAuthorization()
@@ -103,10 +102,12 @@ extension LocationManager: CLLocationManagerDelegate {
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
+        let alertController = FailureAlertController()
         alertController.showAlert(title: "🙋‍♀️", message: "새로고침을 해주세요.")
     }
     
     func locationManager(_ manager: CLLocationManager, didChangeAuthorization status: CLAuthorizationStatus) {
+        let alertController = FailureAlertController()
         switch status {
         case .restricted, .denied:
             alertController.showAlert(title: "❌", message: "날씨 정보를 사용 할 수 없습니다.")
