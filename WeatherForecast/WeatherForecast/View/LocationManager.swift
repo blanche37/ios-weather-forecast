@@ -10,8 +10,8 @@ import CoreLocation
 
 final class LocationManager: CLLocationManager {
     var address: String?
-    var fiveDaysData: FiveDaysForecast?
-    var currentData: CurrentWeather?
+    var fiveDaysWeatherInfo: FiveDaysForecast?
+    var currentWeatherInfo: CurrentWeather?
     private var session = URLSession.shared
     private var alertController = FailureAlertController()
     
@@ -33,7 +33,7 @@ extension LocationManager: CLLocationManagerDelegate {
         networkManager.getWeatherData(with: weatherApi, session) { requestedData
             in
             do {
-                self.currentData = try JSONDecoder().decode(CurrentWeather.self, from: requestedData)
+                self.currentWeatherInfo = try JSONDecoder().decode(CurrentWeather.self, from: requestedData)
                 completion()
             } catch {
                 print("Decode Error")
@@ -44,7 +44,7 @@ extension LocationManager: CLLocationManagerDelegate {
     private func parseFiveDays(networkManager: NetworkManager, weatherApi: WeatherApi, session: URLSession, completion: @escaping () -> Void) {
         networkManager.getWeatherData(with: weatherApi, session) { requestedData in
             do {
-                self.fiveDaysData = try JSONDecoder().decode(FiveDaysForecast.self, from: requestedData)
+                self.fiveDaysWeatherInfo = try JSONDecoder().decode(FiveDaysForecast.self, from: requestedData)
                 completion()
             } catch {
                 print("Decoding Error")

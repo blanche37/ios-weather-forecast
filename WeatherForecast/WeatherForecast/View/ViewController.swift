@@ -48,13 +48,13 @@ final class ViewController: UIViewController {
     }
     
     @objc func setupTableViewHeaderView(_ notification: Notification) {
-        guard let paramIcon = locationManager.currentData?.weather.first,
+        guard let paramIcon = locationManager.currentWeatherInfo?.weather.first,
               let imageURL = URL(string: "https://openweathermap.org/img/w/\(paramIcon.icon).png") else {
                   return
         }
-        let maxCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentData!.main.temperatureMaximum)
-        let minCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentData!.main.temperatureMinimum)
-        let currentCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentData!.main.temperature)
+        let maxCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperatureMaximum)
+        let minCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperatureMinimum)
+        let currentCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperature)
         DispatchQueue.main.async {
             self.addressLabel.text = self.locationManager.address
             self.networkManager.getImageData(url: imageURL, view: nil) { data in
@@ -131,7 +131,7 @@ final class ViewController: UIViewController {
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier, for: indexPath) as? WeatherInfoCell,
-              let item = locationManager.fiveDaysData,
+              let item = locationManager.fiveDaysWeatherInfo,
               let ParamIcon = item.list[indexPath.row].weather.first else {
                   return UITableViewCell()
               }
@@ -171,7 +171,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return locationManager.fiveDaysData?.list.count ?? 0
+        return locationManager.fiveDaysWeatherInfo?.list.count ?? 0
     }
 }
 
