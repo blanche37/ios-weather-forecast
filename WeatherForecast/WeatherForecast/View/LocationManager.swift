@@ -66,7 +66,7 @@ extension LocationManager: CLLocationManagerDelegate {
             }
     }
     
-    func convertToAddressWith(location: CLLocation, locale: Locale) {
+    private func convertToAddressWith(location: CLLocation, locale: Locale) {
         let geoCoder = CLGeocoder()
         
         geoCoder.reverseGeocodeLocation(location, preferredLocale: locale) { placeMarks, error in
