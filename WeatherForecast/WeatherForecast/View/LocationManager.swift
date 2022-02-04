@@ -81,15 +81,11 @@ extension LocationManager: CLLocationManagerDelegate {
             
             self.address = address
         }
-
-
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let longitude = manager.location?.coordinate.longitude,
-              let latitude = manager.location?.coordinate.latitude,
-              let fiveDaysURL = URL(string: "https://api.openweathermap.org/data/2.5/forecast"),
-        let currentWeatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather")
+              let latitude = manager.location?.coordinate.latitude
         else  {
             return
         }
@@ -98,11 +94,11 @@ extension LocationManager: CLLocationManagerDelegate {
         let locale = Locale(identifier: "Ko-kr")
         convertToAddressWith(location: location, locale: locale)
 
-        let requestInfo: [String: Any] = ["lat": latitude, "lon": longitude, "appid": "9cda367698143794391817f65f81c76e"]
-        parseCurrent(url: currentWeatherURL, param: requestInfo, session: session) {
+        let requestParam: [String: Any] = ["lat": latitude, "lon": longitude, "appid": "9cda367698143794391817f65f81c76e"]
+        parseCurrent(url: URLs.currentURL, param: requestParam, session: session) {
             NotificationCenter.default.post(name: Notification.Name.completion, object: nil, userInfo: nil)
         }
-        parseFiveDays(url: fiveDaysURL, param: requestInfo, session: session) {
+        parseFiveDays(url: URLs.fiveDaysURL, param: requestParam, session: session) {
             NotificationCenter.default.post(name: Notification.Name.dataIsNotNil, object: nil, userInfo: nil)
         }
     }
