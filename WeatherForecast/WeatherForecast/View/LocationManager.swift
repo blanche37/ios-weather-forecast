@@ -7,6 +7,7 @@
 
 import UIKit
 import CoreLocation
+import Alamofire
 
 final class LocationManager: CLLocationManager {
     var address: String?
@@ -14,7 +15,7 @@ final class LocationManager: CLLocationManager {
     var currentWeatherInfo: CurrentWeather?
     private var session = URLSession.shared
     private var alertController = FailureAlertController()
-    
+
     private func askUserLocation() {
         self.requestWhenInUseAuthorization()
         self.desiredAccuracy = kCLLocationAccuracyThreeKilometers
@@ -29,31 +30,43 @@ final class LocationManager: CLLocationManager {
 }
 
 extension LocationManager: CLLocationManagerDelegate {
-    private func parseCurrent(networkManager: NetworkManager, weatherApi: WeatherApi, session: URLSession, completion: @escaping () -> Void) {
-        networkManager.getWeatherData(with: weatherApi, session) { requestedData
-            in
-            do {
-                self.currentWeatherInfo = try JSONDecoder().decode(CurrentWeather.self, from: requestedData)
-                completion()
-            } catch {
-                print("Decode Error")
+    private func parseCurrent(url: URL, param: [String: Any], session: URLSession, completion: @escaping () -> Void) {
+        AF.request(url, method: .get, parameters: param)
+            .validate()
+            .responseData { response in
+                switch response.result {
+                case let .success(data):
+                    do {
+                        self.currentWeatherInfo = try JSONDecoder().decode(CurrentWeather.self, from: data)
+                        completion()
+                    } catch {
+                        print("DecodingError")
+                    }
+                case let .failure(error):
+                    print(error)
+                }
             }
-        }
     }
     
-    private func parseFiveDays(networkManager: NetworkManager, weatherApi: WeatherApi, session: URLSession, completion: @escaping () -> Void) {
-        networkManager.getWeatherData(with: weatherApi, session) { requestedData in
-            do {
-                self.fiveDaysWeatherInfo = try JSONDecoder().decode(FiveDaysForecast.self, from: requestedData)
-                completion()
-            } catch {
-                print("Decoding Error")
+    private func parseFiveDays(url: URL, param: [String: Any], session: URLSession, completion: @escaping () -> Void) {
+        AF.request(url, method: .get, parameters: param)
+            .validate()
+            .responseData { response in
+                switch response.result {
+                case let .success(data):
+                    do {
+                        self.fiveDaysWeatherInfo = try JSONDecoder().decode(FiveDaysForecast.self, from: data)
+                        completion()
+                    } catch {
+                        print("DecodingError")
+                    }
+                case let .failure(error):
+                    print(error)
+                }
             }
-        }
     }
 
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        let networkManager = NetworkManager()
         guard let longitude = manager.location?.coordinate.longitude,
               let latitude = manager.location?.coordinate.latitude,
               let fiveDaysURL = URL(string: "https://api.openweathermap.org/data/2.5/forecast"),
@@ -78,14 +91,11 @@ extension LocationManager: CLLocationManagerDelegate {
             self.address = address
         }
 
-        let requestInfo: Parameters = ["lat": latitude, "lon": longitude, "appid": networkManager.apiKey]
-        let fiveDaysWeatherAPI = WeatherApi(httpTask: .request(withUrlParameters: requestInfo), httpMethod: .get, baseUrl: fiveDaysURL)
-        let currentWeatherAPI = WeatherApi(httpTask: .request(withUrlParameters: requestInfo), httpMethod: .get, baseUrl: currentWeatherURL)
-        parseCurrent(networkManager: networkManager, weatherApi: currentWeatherAPI, session: self.session) {
+        let requestInfo: [String: Any] = ["lat": latitude, "lon": longitude, "appid": "9cda367698143794391817f65f81c76e"]
+        parseCurrent(url: currentWeatherURL, param: requestInfo, session: session) {
             NotificationCenter.default.post(name: Notification.Name.completion, object: nil, userInfo: nil)
         }
-        
-        parseFiveDays(networkManager: networkManager, weatherApi: fiveDaysWeatherAPI, session: self.session) {
+        parseFiveDays(url: fiveDaysURL, param: requestInfo, session: session) {
             NotificationCenter.default.post(name: Notification.Name.dataIsNotNil, object: nil, userInfo: nil)
         }
     }

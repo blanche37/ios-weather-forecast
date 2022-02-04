@@ -6,11 +6,12 @@
 
 import UIKit
 import CoreLocation
+import Alamofire
 
 final class ViewController: UIViewController {
     //MARK: - Properties
     private let locationManager = LocationManager()
-    private let networkManager = NetworkManager()
+//    private let networkManager = NetworkManager()
     private let tableView = UITableView()
     private let tableViewHeaderView = UIView()
     private let currentWeatherImageView = UIImageView()
@@ -57,12 +58,25 @@ final class ViewController: UIViewController {
         let currentCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperature)
         DispatchQueue.main.async {
             self.addressLabel.text = self.locationManager.address
-            self.networkManager.getImageData(url: imageURL, view: nil) { data in
-                let image = UIImage(data: data)
-                DispatchQueue.main.async {
-                    self.currentWeatherImageView.image = image
+            AF.request(imageURL, method: .get)
+                .validate()
+                .responseData { response in
+                    switch response.result {
+                    case .success(let data):
+                        let image = UIImage(data: data)
+                        DispatchQueue.main.async {
+                            self.currentWeatherImageView.image = image
+                        }
+                    case .failure(let error):
+                        print(error)
+                    }
                 }
-            }
+//            self.networkManager.getImageData(url: imageURL, view: nil) { data in
+//                let image = UIImage(data: data)
+//                DispatchQueue.main.async {
+//                    self.currentWeatherImageView.image = image
+//                }
+//            }
             self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
             self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)"
         }
@@ -143,17 +157,35 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         guard let weatherImageURL = URL(string: "https://openweathermap.org/img/w/\(ParamIcon.icon).png") else {
             return UITableViewCell()
         }
-        self.networkManager.getImageData(url: weatherImageURL, view: self.tableView) { data in
-            guard let image = UIImage(data: data) else {
-                return
+        AF.request(weatherImageURL, method: .get)
+            .validate()
+            .responseData { response in
+                switch response.result {
+                case let .success(data):
+                    guard let image = UIImage(data: data) else {
+                        return
+                    }
+                    weatherImage = image
+                    guard let weatherImage = weatherImage else {
+                        return
+                    }
+                    
+                    self.fiveDaysWeatherImageCache.setObject(weatherImage, forKey: "\(ParamIcon.icon)" as NSString)
+                case let .failure(error):
+                    print(error)
+                }
             }
-            weatherImage = image
-            guard let weatherImage = weatherImage else {
-                return
-            }
-            
-            self.fiveDaysWeatherImageCache.setObject(weatherImage, forKey: "\(ParamIcon.icon)" as NSString)
-        }
+//        self.networkManager.getImageData(url: weatherImageURL, view: self.tableView) { data in
+//            guard let image = UIImage(data: data) else {
+//                return
+//            }
+//            weatherImage = image
+//            guard let weatherImage = weatherImage else {
+//                return
+//            }
+//
+//            self.fiveDaysWeatherImageCache.setObject(weatherImage, forKey: "\(ParamIcon.icon)" as NSString)
+//        }
         
         dateFormatter.dateFormat = "MM/dd HH시"
         
