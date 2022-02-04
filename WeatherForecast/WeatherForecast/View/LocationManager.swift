@@ -65,19 +65,10 @@ extension LocationManager: CLLocationManagerDelegate {
                 }
             }
     }
-
-    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
-        guard let longitude = manager.location?.coordinate.longitude,
-              let latitude = manager.location?.coordinate.latitude,
-              let fiveDaysURL = URL(string: "https://api.openweathermap.org/data/2.5/forecast"),
-        let currentWeatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather")
-        else  {
-            return
-        }
-        
-        let location = CLLocation(latitude: latitude, longitude: longitude)
+    
+    func convertToAddressWith(location: CLLocation, locale: Locale) {
         let geoCoder = CLGeocoder()
-        let locale = Locale(identifier: "Ko-kr")
+        
         geoCoder.reverseGeocodeLocation(location, preferredLocale: locale) { placeMarks, error in
             guard error == nil else {
                 return
@@ -90,6 +81,22 @@ extension LocationManager: CLLocationManagerDelegate {
             
             self.address = address
         }
+
+
+    }
+
+    func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
+        guard let longitude = manager.location?.coordinate.longitude,
+              let latitude = manager.location?.coordinate.latitude,
+              let fiveDaysURL = URL(string: "https://api.openweathermap.org/data/2.5/forecast"),
+        let currentWeatherURL = URL(string: "https://api.openweathermap.org/data/2.5/weather")
+        else  {
+            return
+        }
+
+        let location = CLLocation(latitude: latitude, longitude: longitude)
+        let locale = Locale(identifier: "Ko-kr")
+        convertToAddressWith(location: location, locale: locale)
 
         let requestInfo: [String: Any] = ["lat": latitude, "lon": longitude, "appid": "9cda367698143794391817f65f81c76e"]
         parseCurrent(url: currentWeatherURL, param: requestInfo, session: session) {

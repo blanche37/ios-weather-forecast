@@ -11,7 +11,6 @@ import Alamofire
 final class ViewController: UIViewController {
     //MARK: - Properties
     private let locationManager = LocationManager()
-//    private let networkManager = NetworkManager()
     private let tableView = UITableView()
     private let tableViewHeaderView = UIView()
     private let currentWeatherImageView = UIImageView()
@@ -71,12 +70,6 @@ final class ViewController: UIViewController {
                         print(error)
                     }
                 }
-//            self.networkManager.getImageData(url: imageURL, view: nil) { data in
-//                let image = UIImage(data: data)
-//                DispatchQueue.main.async {
-//                    self.currentWeatherImageView.image = image
-//                }
-//            }
             self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
             self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)"
         }
@@ -175,17 +168,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                     print(error)
                 }
             }
-//        self.networkManager.getImageData(url: weatherImageURL, view: self.tableView) { data in
-//            guard let image = UIImage(data: data) else {
-//                return
-//            }
-//            weatherImage = image
-//            guard let weatherImage = weatherImage else {
-//                return
-//            }
-//
-//            self.fiveDaysWeatherImageCache.setObject(weatherImage, forKey: "\(ParamIcon.icon)" as NSString)
-//        }
         
         dateFormatter.dateFormat = "MM/dd HH시"
         
