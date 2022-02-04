@@ -13,7 +13,6 @@ final class LocationManager: CLLocationManager {
     var address: String?
     var fiveDaysWeatherInfo: FiveDaysForecast?
     var currentWeatherInfo: CurrentWeather?
-    private var session = URLSession.shared
     private var alertController = FailureAlertController()
 
     private func askUserLocation() {
@@ -30,7 +29,7 @@ final class LocationManager: CLLocationManager {
 }
 
 extension LocationManager: CLLocationManagerDelegate {
-    private func parseCurrent(url: URL, param: [String: Any], session: URLSession, completion: @escaping () -> Void) {
+    private func parseCurrent(url: URL, param: [String: Any], completion: @escaping () -> Void) {
         AF.request(url, method: .get, parameters: param)
             .validate()
             .responseData { response in
@@ -48,7 +47,7 @@ extension LocationManager: CLLocationManagerDelegate {
             }
     }
     
-    private func parseFiveDays(url: URL, param: [String: Any], session: URLSession, completion: @escaping () -> Void) {
+    private func parseFiveDays(url: URL, param: [String: Any], completion: @escaping () -> Void) {
         AF.request(url, method: .get, parameters: param)
             .validate()
             .responseData { response in
@@ -66,7 +65,7 @@ extension LocationManager: CLLocationManagerDelegate {
             }
     }
     
-    private func convertToAddressWith(location: CLLocation, locale: Locale) {
+    private func convertToAddress(with location: CLLocation, locale: Locale) {
         let geoCoder = CLGeocoder()
         
         geoCoder.reverseGeocodeLocation(location, preferredLocale: locale) { placeMarks, error in
@@ -92,13 +91,13 @@ extension LocationManager: CLLocationManagerDelegate {
 
         let location = CLLocation(latitude: latitude, longitude: longitude)
         let locale = Locale(identifier: "Ko-kr")
-        convertToAddressWith(location: location, locale: locale)
+        convertToAddress(with: location, locale: locale)
 
         let requestParam: [String: Any] = ["lat": latitude, "lon": longitude, "appid": "9cda367698143794391817f65f81c76e"]
-        parseCurrent(url: URLs.currentURL, param: requestParam, session: session) {
+        parseCurrent(url: URLs.currentURL, param: requestParam) {
             NotificationCenter.default.post(name: Notification.Name.completion, object: nil, userInfo: nil)
         }
-        parseFiveDays(url: URLs.fiveDaysURL, param: requestParam, session: session) {
+        parseFiveDays(url: URLs.fiveDaysURL, param: requestParam) {
             NotificationCenter.default.post(name: Notification.Name.dataIsNotNil, object: nil, userInfo: nil)
         }
     }
