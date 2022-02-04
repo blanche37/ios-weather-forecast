@@ -13,7 +13,7 @@ final class LocationManager: CLLocationManager {
     var address: String?
     var fiveDaysWeatherInfo: FiveDaysForecast?
     var currentWeatherInfo: CurrentWeather?
-
+    
     private func askUserLocation() {
         self.requestWhenInUseAuthorization()
         self.desiredAccuracy = kCLLocationAccuracyThreeKilometers
@@ -74,25 +74,28 @@ extension LocationManager: CLLocationManagerDelegate {
             
             guard let addresses = placeMarks,
                   let address = addresses.last?.name else {
-                return
-            }
+                      return
+                  }
             
             self.address = address
         }
     }
-
+    
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let longitude = manager.location?.coordinate.longitude,
-              let latitude = manager.location?.coordinate.latitude
-        else  {
-            return
-        }
-
+              let latitude = manager.location?.coordinate.latitude else { return }
+        
         let location = CLLocation(latitude: latitude, longitude: longitude)
         let locale = Locale(identifier: "Ko-kr")
+        
         convertToAddress(with: location, locale: locale)
 
-        let requestParam: [String: Any] = ["lat": latitude, "lon": longitude, "appid": "9cda367698143794391817f65f81c76e"]
+        let requestParam: [String: Any] = [
+            "lat": latitude,
+            "lon": longitude,
+            "appid": "9cda367698143794391817f65f81c76e"
+        ]
+        
         parseCurrent(url: URLs.currentURL, param: requestParam) {
             NotificationCenter.default.post(name: Notification.Name.completion, object: nil, userInfo: nil)
         }
@@ -111,10 +114,8 @@ extension LocationManager: CLLocationManagerDelegate {
         switch status {
         case .restricted, .denied:
             alertController.showAlert(title: "❌", message: "날씨 정보를 사용 할 수 없습니다.")
-            break
         case .authorizedWhenInUse, .authorizedAlways, .notDetermined:
             manager.requestLocation()
-            break
         @unknown default:
             alertController.showAlert(title: "⚠️", message: "알수없는 에러")
         }

@@ -11,6 +11,7 @@
 		4342E72A271F09C70089A425 /* NotificationName.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4342E729271F09C70089A425 /* NotificationName.swift */; };
 		435D6426270C151F008BE703 /* LocationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 435D6425270C151F008BE703 /* LocationManager.swift */; };
 		43A87C3527ADBAAD00F64F8B /* URLs.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43A87C3427ADBAAD00F64F8B /* URLs.swift */; };
+		43A87C3827ADC20600F64F8B /* .swiftlint.yml in Resources */ = {isa = PBXBuildFile; fileRef = 43A87C3727ADC20600F64F8B /* .swiftlint.yml */; };
 		43AE729827195A5400D01CF7 /* FiveDaysWeatherInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AE729727195A5400D01CF7 /* FiveDaysWeatherInfo.swift */; };
 		43AF646A2722B843009EF5FD /* FailureAlertController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 43AF64692722B843009EF5FD /* FailureAlertController.swift */; };
 		88040C567ADF125D0279D607 /* Pods_WeatherForecast.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2C44F13A4CED09847E8EDAFC /* Pods_WeatherForecast.framework */; };
@@ -48,6 +49,7 @@
 		4342E729271F09C70089A425 /* NotificationName.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationName.swift; sourceTree = "<group>"; };
 		435D6425270C151F008BE703 /* LocationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LocationManager.swift; sourceTree = "<group>"; };
 		43A87C3427ADBAAD00F64F8B /* URLs.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLs.swift; sourceTree = "<group>"; };
+		43A87C3727ADC20600F64F8B /* .swiftlint.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = .swiftlint.yml; sourceTree = "<group>"; };
 		43AE729727195A5400D01CF7 /* FiveDaysWeatherInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FiveDaysWeatherInfo.swift; sourceTree = "<group>"; };
 		43AF64692722B843009EF5FD /* FailureAlertController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FailureAlertController.swift; sourceTree = "<group>"; };
 		A824B89527045314009F9193 /* WeatherInfoModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WeatherInfoModel.swift; sourceTree = "<group>"; };
@@ -175,6 +177,7 @@
 		C79C8CE725ADDDF200EEE3F1 = {
 			isa = PBXGroup;
 			children = (
+				43A87C3727ADC20600F64F8B /* .swiftlint.yml */,
 				C79C8CF225ADDDF200EEE3F1 /* WeatherForecast */,
 				C79C8D0925ADDDF400EEE3F1 /* WeatherForecastTests */,
 				C79C8D1425ADDDF400EEE3F1 /* WeatherForecastUITests */,
@@ -231,6 +234,7 @@
 			buildConfigurationList = C79C8D1A25ADDDF400EEE3F1 /* Build configuration list for PBXNativeTarget "WeatherForecast" */;
 			buildPhases = (
 				9D21AF16042CF05A46AC2AC2 /* [CP] Check Pods Manifest.lock */,
+				43A87C3627ADC18900F64F8B /* Run Script - SwiftLint */,
 				C79C8CEC25ADDDF200EEE3F1 /* Sources */,
 				C79C8CED25ADDDF200EEE3F1 /* Frameworks */,
 				C79C8CEE25ADDDF200EEE3F1 /* Resources */,
@@ -331,6 +335,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				43A87C3827ADC20600F64F8B /* .swiftlint.yml in Resources */,
 				A824B8992705D743009F9193 /* APIKey.plist in Resources */,
 				C79C8CFD25ADDDF300EEE3F1 /* Assets.xcassets in Resources */,
 			);
@@ -374,6 +379,24 @@
 			shellPath = /bin/sh;
 			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
 			showEnvVarsInLog = 0;
+		};
+		43A87C3627ADC18900F64F8B /* Run Script - SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Run Script - SwiftLint";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "${PODS_ROOT}/SwiftLint/swiftlint\n";
 		};
 		9D21AF16042CF05A46AC2AC2 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

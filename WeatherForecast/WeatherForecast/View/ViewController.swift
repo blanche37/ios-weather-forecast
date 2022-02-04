@@ -9,7 +9,7 @@ import CoreLocation
 import Alamofire
 
 final class ViewController: UIViewController {
-    //MARK: - Properties
+    // MARK: - Properties
     private let locationManager = LocationManager()
     private let tableView = UITableView()
     private let tableViewHeaderView = UIView()
@@ -19,7 +19,7 @@ final class ViewController: UIViewController {
     private let currentTemperatureLabel = UILabel()
     private let fiveDaysWeatherImageCache = NSCache<NSString, UIImage>()
     
-    //MARK: - LifeCycles
+    // MARK: - LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
         addObservers()
@@ -29,10 +29,16 @@ final class ViewController: UIViewController {
         setupBackgroundImage()
     }
     
-    //MARK: - Methods
+    // MARK: - Methods
     private func addObservers() {
-        NotificationCenter.default.addObserver(self, selector: #selector(refreshTableView(_:)), name: Notification.Name.dataIsNotNil, object: nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(setupTableViewHeaderView), name: Notification.Name.completion, object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(refreshTableView(_:)),
+                                               name: Notification.Name.dataIsNotNil,
+                                               object: nil)
+        NotificationCenter.default.addObserver(self,
+                                               selector: #selector(setupTableViewHeaderView),
+                                               name: Notification.Name.completion,
+                                               object: nil)
     }
     
     private func setUpTableView() {
@@ -134,10 +140,11 @@ final class ViewController: UIViewController {
     }
 }
 
-//MARK: - TableView Protocol
+// MARK: - TableView Protocol
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier, for: indexPath) as? WeatherInfoCell,
+        guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier,
+                                                       for: indexPath) as? WeatherInfoCell,
               let item = locationManager.fiveDaysWeatherInfo,
               let ParamIcon = item.list[indexPath.row].weather.first else {
                   return UITableViewCell()
@@ -190,7 +197,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
 }
 
 extension UIView {
-    func addBackground(imageName:String) {
+    func addBackground(imageName: String) {
         let imageViewBackground = UIImageView(frame: UIScreen.main.bounds)
         imageViewBackground.image = UIImage(named: imageName)
         imageViewBackground.contentMode = .scaleToFill

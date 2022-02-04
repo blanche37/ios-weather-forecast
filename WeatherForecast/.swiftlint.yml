@@ -1,0 +1,18 @@
+excluded:
+- Pods
+- WeatherForecast/AppLifeCycle
+- WeatherForecast/Model
+
+disabled_rules:
+- trailing_whitespace
+- identifier_name
+
+opt_in_rules:
+- toggle_bool
+- multiline_function_chains
+- weak_delegate
+- trailing_closure
+- private_action
+- private_outlet
+- force_unwrapping
+- fatal_error_message
