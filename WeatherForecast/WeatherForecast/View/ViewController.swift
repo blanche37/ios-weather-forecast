@@ -117,6 +117,7 @@ final class ViewController: UIViewController {
         let minCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMinimum)
         let currentCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperature)
         
+        self.addressLabel.text = self.locationManager.address
         self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
         self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)°"
     }

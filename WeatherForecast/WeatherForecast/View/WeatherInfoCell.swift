@@ -15,6 +15,7 @@ final class WeatherInfoCell: UITableViewCell {
     let dateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .lightGray
+        label.font = UIFont.boldSystemFont(ofSize: 17)
         return label
     }()
     
