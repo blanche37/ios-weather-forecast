@@ -215,9 +215,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
         
         dateFormatter.dateFormat = "MM/dd HH시"
-        
-        cell.backgroundColor = .clear
-        cell.selectionStyle = .none
+    
         cell.dateLabel.text = "\(dateFormatter.string(from: item.list[indexPath.row].date))"
         cell.temperatureLabel.text = "\(roundedNumber)°"
         return cell

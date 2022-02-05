@@ -61,6 +61,8 @@ final class WeatherInfoCell: UITableViewCell {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
         addSubViews()
         configureLayout()
+        self.backgroundColor = .clear
+        self.selectionStyle = .none
     }
     
     required init?(coder: NSCoder) {
