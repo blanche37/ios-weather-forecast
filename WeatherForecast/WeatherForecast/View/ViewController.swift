@@ -183,6 +183,14 @@ final class ViewController: UIViewController {
     private func cacheImage(iconId: String, image: UIImage) {
         self.fiveDaysWeatherImageCache.setObject(image, forKey: iconId as NSString)
     }
+    
+    private func convertFahrenheitToCelsius(fahrenheit: Double) -> Double {
+        let celsius = UnitTemperature.celsius.converter.value(
+            fromBaseUnitValue: fahrenheit
+        )
+        let roundedNumber = round(celsius * 10) / 10
+        return roundedNumber
+    }
 }
 
 // MARK: - TableView Protocol
@@ -190,16 +198,12 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier,
                                                        for: indexPath) as? WeatherInfoCell,
-              let item = locationManager.fiveDaysWeatherInfo,
-              let weatherInfo = item.list[indexPath.row].weather.first else {
+              let fiveDaysWeatherInfo = locationManager.fiveDaysWeatherInfo,
+              let weatherInfo = fiveDaysWeatherInfo.list[indexPath.row].weather.first else {
                   return UITableViewCell()
               }
         
-        let celsius = UnitTemperature.celsius.converter.value(
-            fromBaseUnitValue: item.list[indexPath.row].main.temperature
-        )
-        
-        let roundedNumber = round(celsius * 10) / 10
+        let celsius = convertFahrenheitToCelsius(fahrenheit: fiveDaysWeatherInfo.list[indexPath.row].main.temperature)
         let dateFormatter = DateFormatter()
         
         getWeatherImageData(with: weatherInfo.icon) { data in
@@ -216,8 +220,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         dateFormatter.dateFormat = "MM/dd HH시"
     
-        cell.dateLabel.text = "\(dateFormatter.string(from: item.list[indexPath.row].date))"
-        cell.temperatureLabel.text = "\(roundedNumber)°"
+        cell.dateLabel.text = "\(dateFormatter.string(from: fiveDaysWeatherInfo.list[indexPath.row].date))"
+        cell.temperatureLabel.text = "\(celsius)°"
         return cell
     }
     
