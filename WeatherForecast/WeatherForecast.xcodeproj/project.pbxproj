@@ -131,8 +131,8 @@
 			children = (
 				C79C8CF725ADDDF200EEE3F1 /* ViewController.swift */,
 				43AF64692722B843009EF5FD /* FailureAlertController.swift */,
-				435D6425270C151F008BE703 /* LocationManager.swift */,
 				43AE729727195A5400D01CF7 /* FiveDaysWeatherInfo.swift */,
+				435D6425270C151F008BE703 /* LocationManager.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";

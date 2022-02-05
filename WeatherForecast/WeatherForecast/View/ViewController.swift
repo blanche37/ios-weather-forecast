@@ -5,25 +5,61 @@
 // 
 
 import UIKit
-import CoreLocation
 import Alamofire
+import SnapKit
 
 final class ViewController: UIViewController {
     // MARK: - Properties
     private let locationManager = LocationManager()
-    private let tableView = UITableView()
-    private let tableViewHeaderView = UIView()
+    private lazy var tableViewHeaderView = UIView()
     private let currentWeatherImageView = UIImageView()
-    private let addressLabel = UILabel()
-    private let temperatureRangeLabel = UILabel()
-    private let currentTemperatureLabel = UILabel()
     private let fiveDaysWeatherImageCache = NSCache<NSString, UIImage>()
     
+    private lazy var tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.delegate = self
+        tableView.dataSource = self
+        tableView.register(WeatherInfoCell.self, forCellReuseIdentifier: WeatherInfoCell.cellIdentifier)
+        tableView.tableHeaderView = self.tableViewHeaderView
+        return tableView
+    }()
+    
+    private let addressLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 15)
+        label.textColor = .lightGray
+        return label
+    }()
+    
+    private let temperatureRangeLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.systemFont(ofSize: 15)
+        label.textColor = .lightGray
+        return label
+    }()
+    
+    private let currentTemperatureLabel: UILabel = {
+        let label = UILabel()
+        label.font = UIFont.boldSystemFont(ofSize: 24)
+        label.textColor = .white
+        return label
+    }()
+    
+    private lazy var stackView: UIStackView = {
+        let stackView = UIStackView()
+        stackView.axis = .vertical
+        stackView.spacing = 10
+        stackView.alignment = .leading
+        stackView.distribution = .equalSpacing
+        [self.addressLabel, self.temperatureRangeLabel, self.currentTemperatureLabel]
+            .forEach { stackView.addArrangedSubview($0) }
+        return stackView
+    }()
+
     // MARK: - LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
         addObservers()
-        setUpTableView()
         addSubviews()
         configureLayout()
         setupBackgroundImage()
@@ -41,12 +77,6 @@ final class ViewController: UIViewController {
                                                object: nil)
     }
     
-    private func setUpTableView() {
-        tableView.delegate = self
-        tableView.dataSource = self
-        tableView.register(WeatherInfoCell.self, forCellReuseIdentifier: WeatherInfoCell.cellIdentifier)
-    }
-    
     @objc func refreshTableView(_ notification: Notification) {
         DispatchQueue.main.async {
             self.tableView.reloadData()
@@ -57,7 +87,8 @@ final class ViewController: UIViewController {
         guard let paramIcon = locationManager.currentWeatherInfo?.weather.first,
               let imageURL = URL(string: "https://openweathermap.org/img/w/\(paramIcon.icon).png") else {
                   return
-        }
+              }
+        
         let maxCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperatureMaximum)
         let minCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperatureMinimum)
         let currentCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperature)
@@ -88,55 +119,30 @@ final class ViewController: UIViewController {
     
     private func addSubviews() {
         view.addSubview(tableView)
-        tableView.tableHeaderView = tableViewHeaderView
         tableViewHeaderView.addSubview(currentWeatherImageView)
-        tableViewHeaderView.addSubview(addressLabel)
-        tableViewHeaderView.addSubview(temperatureRangeLabel)
-        tableViewHeaderView.addSubview(currentTemperatureLabel)
+        tableViewHeaderView.addSubview(stackView)
     }
     
     private func configureLayout() {
-        let safeArea = view.safeAreaLayoutGuide
-        tableView.translatesAutoresizingMaskIntoConstraints = false
-        tableViewHeaderView.translatesAutoresizingMaskIntoConstraints = false
-        currentWeatherImageView.translatesAutoresizingMaskIntoConstraints = false
-        addressLabel.translatesAutoresizingMaskIntoConstraints = false
-        temperatureRangeLabel.translatesAutoresizingMaskIntoConstraints = false
-        currentTemperatureLabel.translatesAutoresizingMaskIntoConstraints = false
+        tableView.snp.makeConstraints { make in
+            make.edges.equalTo(self.view.safeAreaLayoutGuide)
+        }
         
-        NSLayoutConstraint.activate([
-            tableView.leadingAnchor.constraint(equalTo: safeArea.leadingAnchor),
-            tableView.trailingAnchor.constraint(equalTo: safeArea.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: safeArea.topAnchor),
-            tableView.bottomAnchor.constraint(equalTo: safeArea.bottomAnchor)
-        ])
+        tableViewHeaderView.snp.makeConstraints { make in
+            make.width.equalTo(self.tableView)
+            make.height.equalTo(100)
+        }
         
-        NSLayoutConstraint.activate([
-            tableViewHeaderView.heightAnchor.constraint(equalToConstant: 100),
-            tableViewHeaderView.widthAnchor.constraint(equalToConstant: tableView.bounds.width)
-        ])
+        currentWeatherImageView.snp.makeConstraints { make in
+            make.width.height.equalTo(80)
+            make.leading.top.equalTo(self.tableViewHeaderView).offset(10)
+        }
         
-        NSLayoutConstraint.activate([
-            currentWeatherImageView.leadingAnchor.constraint(equalTo: tableViewHeaderView.leadingAnchor, constant: 10),
-            currentWeatherImageView.widthAnchor.constraint(equalToConstant: 80),
-            currentWeatherImageView.heightAnchor.constraint(equalToConstant: 80),
-            currentWeatherImageView.topAnchor.constraint(equalTo: tableViewHeaderView.topAnchor, constant: 10)
-        ])
-        
-        NSLayoutConstraint.activate([
-            addressLabel.leadingAnchor.constraint(equalTo: currentWeatherImageView.trailingAnchor, constant: 10),
-            addressLabel.topAnchor.constraint(equalTo: tableViewHeaderView.topAnchor, constant: 10)
-        ])
-        
-        NSLayoutConstraint.activate([
-            temperatureRangeLabel.leadingAnchor.constraint(equalTo: currentWeatherImageView.trailingAnchor, constant: 10),
-            temperatureRangeLabel.topAnchor.constraint(equalTo: addressLabel.bottomAnchor, constant: 10)
-        ])
-        
-        NSLayoutConstraint.activate([
-            currentTemperatureLabel.leadingAnchor.constraint(equalTo: currentWeatherImageView.trailingAnchor, constant: 10),
-            currentTemperatureLabel.topAnchor.constraint(equalTo: temperatureRangeLabel.bottomAnchor, constant: 10)
-        ])
+        stackView.snp.makeConstraints { make in
+            make.leading.equalTo(currentWeatherImageView.snp.trailing).offset(10)
+            make.top.equalToSuperview().offset(10)
+            make.bottom.equalToSuperview().offset(-10)
+        }
     }
 }
 
@@ -204,11 +210,14 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         cell.dateLabel.text = "\(dateFormatter.string(from: item.list[indexPath.row].date))"
         cell.temperatureLabel.text = "\(roundedNumber)°"
         return cell
-        
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return locationManager.fiveDaysWeatherInfo?.list.count ?? 0
+    }
+    
+    func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
+        return 50
     }
 }
 
