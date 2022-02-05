@@ -97,32 +97,25 @@ final class ViewController: UIViewController {
     }
     
     @objc func setupTableViewHeaderView(_ notification: Notification) {
-        guard let paramIcon = locationManager.currentWeatherInfo?.weather.first,
-              let imageURL = URL(string: "https://openweathermap.org/img/w/\(paramIcon.icon).png") else {
-                  return
-              }
-        
-        let maxCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperatureMaximum)
-        let minCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperatureMinimum)
-        let currentCelsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: self.locationManager.currentWeatherInfo!.main.temperature)
-        DispatchQueue.main.async {
-            self.addressLabel.text = self.locationManager.address
-            AF.request(imageURL, method: .get)
-                .validate()
-                .responseData { response in
-                    switch response.result {
-                    case .success(let data):
-                        let image = UIImage(data: data)
-                        DispatchQueue.main.async {
-                            self.currentWeatherImageView.image = image
-                        }
-                    case .failure(let error):
-                        print(error)
-                    }
-                }
-            self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
-            self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)"
+        guard let weatherInfo = locationManager.currentWeatherInfo.flatMap({ $0.weather.first }),
+              let temperatureInfo = locationManager.currentWeatherInfo.map({ $0.main }) else {
+            return
         }
+        
+        let iconId = weatherInfo.icon
+        
+        getWeatherImageData(with: iconId) { data in
+            self.convert(with: data) { image in
+                self.currentWeatherImageView.image = image
+            }
+        }
+        
+        let maxCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMaximum)
+        let minCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMinimum)
+        let currentCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperature)
+        
+        self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
+        self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)°"
     }
     
     private func addSubviews() {
@@ -202,6 +195,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
               let weatherInfo = fiveDaysWeatherInfo.list[indexPath.row].weather.first else {
                   return UITableViewCell()
               }
+        
         let fahrenheit = fiveDaysWeatherInfo.list[indexPath.row].main.temperature
         let celsius = convertFahrenheitToCelsius(fahrenheit: fahrenheit)
         let dateFormatter = DateFormatter()
@@ -219,7 +213,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
         
         dateFormatter.dateFormat = "MM/dd HH시"
-    
+        
         cell.dateLabel.text = "\(dateFormatter.string(from: fiveDaysWeatherInfo.list[indexPath.row].date))"
         cell.temperatureLabel.text = "\(celsius)°"
         return cell
