@@ -128,6 +128,22 @@
 			path = Pods;
 			sourceTree = "<group>";
 		};
+		43294DB227AEF15F0070D92B /* EndPoint */ = {
+			isa = PBXGroup;
+			children = (
+				43A87C3427ADBAAD00F64F8B /* URLs.swift */,
+			);
+			path = EndPoint;
+			sourceTree = "<group>";
+		};
+		43294DB327AEF1740070D92B /* Manager */ = {
+			isa = PBXGroup;
+			children = (
+				435D6425270C151F008BE703 /* LocationManager.swift */,
+			);
+			path = Manager;
+			sourceTree = "<group>";
+		};
 		436B3DA027031CE70069B3AA /* View */ = {
 			isa = PBXGroup;
 			children = (
@@ -135,7 +151,6 @@
 				43AF64692722B843009EF5FD /* FailureAlertController.swift */,
 				43AE729727195A5400D01CF7 /* FiveDaysWeatherInfo.swift */,
 				43294DAD27AEF0320070D92B /* UIView+Extension.swift */,
-				435D6425270C151F008BE703 /* LocationManager.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";
@@ -144,7 +159,8 @@
 			isa = PBXGroup;
 			children = (
 				43A87C3327ADBA8A00F64F8B /* DecodingModel */,
-				43A87C3427ADBAAD00F64F8B /* URLs.swift */,
+				43294DB227AEF15F0070D92B /* EndPoint */,
+				43294DB327AEF1740070D92B /* Manager */,
 			);
 			path = Model;
 			sourceTree = "<group>";
