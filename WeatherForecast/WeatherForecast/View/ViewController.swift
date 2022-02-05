@@ -15,12 +15,20 @@ final class ViewController: UIViewController {
     private let currentWeatherImageView = UIImageView()
     private let fiveDaysWeatherImageCache = NSCache<NSString, UIImage>()
     
+    private let refreshControl: UIRefreshControl = {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refreshTableView(refreshControl:)), for: .valueChanged)
+        refreshControl.backgroundColor = .clear
+        return refreshControl
+    }()
+    
     private lazy var tableView: UITableView = {
         let tableView = UITableView()
         tableView.delegate = self
         tableView.dataSource = self
         tableView.register(WeatherInfoCell.self, forCellReuseIdentifier: WeatherInfoCell.cellIdentifier)
         tableView.tableHeaderView = self.tableViewHeaderView
+        tableView.refreshControl = self.refreshControl
         tableView.backgroundColor = .clear
         return tableView
     }()
@@ -82,7 +90,7 @@ final class ViewController: UIViewController {
                                                object: nil)
     }
     
-    @objc func refreshTableView(_ notification: Notification) {
+    @objc private func refreshTableView(_ notification: Notification) {
         DispatchQueue.main.async {
             self.tableView.reloadData()
         }
@@ -221,5 +229,22 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 50
+    }
+}
+
+// MARK: - Refresh Control
+extension ViewController {
+    @objc private func refreshTableView(refreshControl: UIRefreshControl) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.tableView.reloadData()
+            refreshControl.endRefreshing()
+        }
+    }
+    
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint,
+                                   targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        if velocity.y < -0.1 {
+            self.refreshTableView(refreshControl: self.refreshControl)
+        }
     }
 }
