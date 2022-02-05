@@ -13,7 +13,6 @@ final class ViewController: UIViewController {
     private let locationManager = LocationManager()
     private lazy var tableViewHeaderView = UIView()
     private let currentWeatherImageView = UIImageView()
-    private let fiveDaysWeatherImageCache = NSCache<NSString, UIImage>()
     
     private let refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -177,10 +176,6 @@ final class ViewController: UIViewController {
         }
     }
     
-    private func cacheImage(iconId: String, image: UIImage) {
-        self.fiveDaysWeatherImageCache.setObject(image, forKey: iconId as NSString)
-    }
-    
     private func convertFahrenheitToCelsius(fahrenheit: Double) -> Double {
         let celsius = UnitTemperature.celsius.converter.value(
             fromBaseUnitValue: fahrenheit
@@ -206,12 +201,13 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         getWeatherImageData(with: weatherInfo.icon) { data in
             self.convert(with: data) { image in
-                if let cachedImage = self.fiveDaysWeatherImageCache.object(forKey: "\(weatherInfo.icon)" as NSString) {
+                if let cachedImage = CachingManager.fiveDaysWeatherImageCache.object(
+                    forKey: "\(weatherInfo.icon)" as NSString) {
                     DispatchQueue.main.async {
                         cell.weatherImageView.image = cachedImage
                     }
                 } else {
-                    self.cacheImage(iconId: weatherInfo.icon, image: image)
+                    CachingManager.cacheImage(iconId: weatherInfo.icon, image: image)
                 }
             }
         }
