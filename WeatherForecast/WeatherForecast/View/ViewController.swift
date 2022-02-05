@@ -142,47 +142,63 @@ final class ViewController: UIViewController {
 
 // MARK: - TableView Protocol
 extension ViewController: UITableViewDelegate, UITableViewDataSource {
+    func getWeatherImageData(with iconId: String, completion: @escaping (Data) -> Void) {
+        do {
+            let weatherImageURL = try URLs.getImageURL(with: iconId)
+            AF.request(weatherImageURL, method: .get)
+                .validate()
+                .responseData { response in
+                    switch response.result {
+                    case let .success(data):
+                        completion(data)
+                    case let .failure(error):
+                        print(error)
+                    }
+                }
+        } catch {
+            print(error)
+        }
+    }
+    
+    func convert(with data: Data, completion: @escaping (UIImage) -> Void) {
+        DispatchQueue.global().async {
+            guard let weatherImage = UIImage(data: data) else {
+                return
+            }
+            completion(weatherImage)
+        }
+    }
+    
+    func cacheImage(iconId: String, image: UIImage) {
+        self.fiveDaysWeatherImageCache.setObject(image, forKey: iconId as NSString)
+    }
+    
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier,
                                                        for: indexPath) as? WeatherInfoCell,
               let item = locationManager.fiveDaysWeatherInfo,
-              let ParamIcon = item.list[indexPath.row].weather.first else {
+              let weatherInfo = item.list[indexPath.row].weather.first else {
                   return UITableViewCell()
               }
         
         let celsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: item.list[indexPath.row].main.temperature)
         let roundedNumber = round(celsius * 10) / 10
         let dateFormatter = DateFormatter()
-        var weatherImage: UIImage?
-        guard let weatherImageURL = URL(string: "https://openweathermap.org/img/w/\(ParamIcon.icon).png") else {
-            return UITableViewCell()
-        }
-        AF.request(weatherImageURL, method: .get)
-            .validate()
-            .responseData { response in
-                switch response.result {
-                case let .success(data):
-                    guard let image = UIImage(data: data) else {
-                        return
+        
+        getWeatherImageData(with: weatherInfo.icon) { data in
+            self.convert(with: data) { image in
+                if let cachedImage = self.fiveDaysWeatherImageCache.object(forKey: "\(weatherInfo.icon)" as NSString) {
+                    DispatchQueue.main.async {
+                        cell.weatherImageView.image = cachedImage
                     }
-                    weatherImage = image
-                    guard let weatherImage = weatherImage else {
-                        return
-                    }
-                    
-                    self.fiveDaysWeatherImageCache.setObject(weatherImage, forKey: "\(ParamIcon.icon)" as NSString)
-                case let .failure(error):
-                    print(error)
+                } else {
+                    self.cacheImage(iconId: weatherInfo.icon, image: image)
                 }
             }
+        }
         
         dateFormatter.dateFormat = "MM/dd HH시"
         
-        if let cachedImage = fiveDaysWeatherImageCache.object(forKey: "\(ParamIcon.icon)" as NSString) {
-            cell.weatherImageView.image = cachedImage
-        } else {
-            cell.weatherImageView.image = weatherImage
-        }
         cell.backgroundColor = .clear
         cell.selectionStyle = .none
         cell.dateLabel.text = "\(dateFormatter.string(from: item.list[indexPath.row].date))"

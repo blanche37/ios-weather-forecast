@@ -1,9 +1,4 @@
-feat: 위치정보 요청 오류 처리 , 권한변경 이벤트처리 로직 구현 
-
-- locationManager 프로퍼티 접근제한자 추가
-- 상속이 필요없는 클래스 final 키워드 추가
-- LocationManager 클래스 생성
-- CLLocationManagerDelegate메서드 extension으로 분리
+refactor: LocationManager 내 전역변수 alertController를 함수내부로 이동
 
 ##### 제목은 최대 50 글자까지만 입력 ############## -> |
 
@@ -34,14 +29,12 @@ feat: 위치정보 요청 오류 처리 , 권한변경 이벤트처리 로직 �
 # Please enter the commit message for your changes. Lines starting
 # with '#' will be ignored, and an empty message aborts the commit.
 #
-# On branch step2
+# On branch step3
 # Changes to be committed:
-#	new file:   .DS_Store
-#	new file:   WeatherForecast/.DS_Store
-#	modified:   WeatherForecast/WeatherForecast.xcodeproj/project.pbxproj
-#	modified:   WeatherForecast/WeatherForecast/.DS_Store
-#	modified:   WeatherForecast/WeatherForecast/Model/NetworkLayer/Networking/Manager/NetworkManager.swift
-#	modified:   WeatherForecast/WeatherForecast/Model/NetworkLayer/Networking/Service/NetworkRouter.swift
-#	new file:   WeatherForecast/WeatherForecast/View/LocationManager.swift
-#	modified:   WeatherForecast/WeatherForecast/View/ViewController.swift
+#	modified:   WeatherForecast/View/LocationManager.swift
+#
+# Changes not staged for commit:
+#	modified:   ../.DS_Store
+#	modified:   ../.gitignore
+#	deleted:    "../\\"
 #
