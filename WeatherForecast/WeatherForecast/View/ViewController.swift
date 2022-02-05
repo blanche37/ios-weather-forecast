@@ -60,12 +60,17 @@ final class ViewController: UIViewController {
     // MARK: - LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
+        setBackgroundImage()
         addObservers()
         addSubviews()
         configureLayout()
     }
     
     // MARK: - Methods
+    private func setBackgroundImage() {
+        self.view.addBackground(imageName: "seoul")
+    }
+    
     private func addObservers() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(refreshTableView(_:)),
