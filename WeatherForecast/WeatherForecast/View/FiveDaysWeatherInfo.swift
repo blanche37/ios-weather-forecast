@@ -25,7 +25,7 @@ final class WeatherInfoCell: UITableViewCell {
         return label
     }()
     
-    lazy var stackView: UIStackView = {
+    private lazy var stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
         stackView.spacing = 10

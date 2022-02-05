@@ -7,7 +7,7 @@
 
 import UIKit
 
-class FailureAlertController: UIAlertController {
+final class FailureAlertController: UIAlertController {
     func showAlert(title: String, message: String) {
         DispatchQueue.main.async {
             let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)

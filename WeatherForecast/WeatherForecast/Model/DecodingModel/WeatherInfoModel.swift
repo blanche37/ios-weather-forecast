@@ -8,9 +8,9 @@
 import Foundation
 
 struct CurrentWeather: Decodable {
-    var coordination: Coordinate
-    var weather: [Weather]
-    var main: Main
+    let coordination: Coordinate
+    let weather: [Weather]
+    let main: Main
     
     enum CodingKeys: String, CodingKey {
         case coordination = "coord"
@@ -18,13 +18,13 @@ struct CurrentWeather: Decodable {
     }
     
     struct Weather: Decodable {
-        var icon: String
+        let icon: String
     }
     
     struct Main: Decodable {
-        var temperatureMinimum: Double
-        var temperatureMaximum: Double
-        var temperature: Double
+        let temperatureMinimum: Double
+        let temperatureMaximum: Double
+        let temperature: Double
         
         enum CodingKeys: String, CodingKey {
             case temperatureMinimum = "temp_min"
@@ -49,9 +49,9 @@ struct FiveDaysForecast: Decodable {
 }
 
 struct ListDetail: Decodable {
-    var date: Date
-    var main: MainDetail
-    var weather: [WeatherDetail]
+    let date: Date
+    let main: MainDetail
+    let weather: [WeatherDetail]
 
     enum CodingKeys: String, CodingKey {
         case date = "dt"
@@ -60,7 +60,7 @@ struct ListDetail: Decodable {
 }
 
 struct MainDetail: Decodable {
-    var temperature: Double
+    let temperature: Double
 
     enum CodingKeys: String, CodingKey {
         case temperature = "temp"
@@ -68,6 +68,6 @@ struct MainDetail: Decodable {
 }
 
 struct WeatherDetail: Decodable {
-    var icon: String
+    let icon: String
 }
 

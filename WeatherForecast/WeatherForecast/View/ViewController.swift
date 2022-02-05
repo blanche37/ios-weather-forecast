@@ -55,7 +55,7 @@ final class ViewController: UIViewController {
             .forEach { stackView.addArrangedSubview($0) }
         return stackView
     }()
-
+    
     // MARK: - LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -144,11 +144,8 @@ final class ViewController: UIViewController {
             make.bottom.equalToSuperview().offset(-10)
         }
     }
-}
-
-// MARK: - TableView Protocol
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
-    func getWeatherImageData(with iconId: String, completion: @escaping (Data) -> Void) {
+    
+    private func getWeatherImageData(with iconId: String, completion: @escaping (Data) -> Void) {
         do {
             let weatherImageURL = try URLs.getImageURL(with: iconId)
             AF.request(weatherImageURL, method: .get)
@@ -166,7 +163,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-    func convert(with data: Data, completion: @escaping (UIImage) -> Void) {
+    private func convert(with data: Data, completion: @escaping (UIImage) -> Void) {
         DispatchQueue.global().async {
             guard let weatherImage = UIImage(data: data) else {
                 return
@@ -175,10 +172,13 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         }
     }
     
-    func cacheImage(iconId: String, image: UIImage) {
+    private func cacheImage(iconId: String, image: UIImage) {
         self.fiveDaysWeatherImageCache.setObject(image, forKey: iconId as NSString)
     }
-    
+}
+
+// MARK: - TableView Protocol
+extension ViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier,
                                                        for: indexPath) as? WeatherInfoCell,
@@ -187,7 +187,10 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
                   return UITableViewCell()
               }
         
-        let celsius = UnitTemperature.celsius.converter.value(fromBaseUnitValue: item.list[indexPath.row].main.temperature)
+        let celsius = UnitTemperature.celsius.converter.value(
+            fromBaseUnitValue: item.list[indexPath.row].main.temperature
+        )
+        
         let roundedNumber = round(celsius * 10) / 10
         let dateFormatter = DateFormatter()
         
