@@ -34,8 +34,8 @@ struct CurrentWeather: Decodable {
     }
     
     struct Coordinate: Decodable {
-        var longitude: Double
-        var lattitude: Double
+        let longitude: Double
+        let lattitude: Double
         
         enum CodingKeys: String, CodingKey {
             case longitude = "lon"

@@ -183,6 +183,22 @@ final class ViewController: UIViewController {
         let roundedNumber = round(celsius * 10) / 10
         return roundedNumber
     }
+    
+    // MARK: - Refresh Control
+    
+    @objc private func refreshTableView(refreshControl: UIRefreshControl) {
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            self.tableView.reloadData()
+            refreshControl.endRefreshing()
+        }
+    }
+    
+    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint,
+                                   targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        if velocity.y < -0.1 {
+            self.refreshTableView(refreshControl: self.refreshControl)
+        }
+    }
 }
 
 // MARK: - TableView Protocol
@@ -225,22 +241,5 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 50
-    }
-}
-
-// MARK: - Refresh Control
-extension ViewController {
-    @objc private func refreshTableView(refreshControl: UIRefreshControl) {
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-            self.tableView.reloadData()
-            refreshControl.endRefreshing()
-        }
-    }
-    
-    func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint,
-                                   targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        if velocity.y < -0.1 {
-            self.refreshTableView(refreshControl: self.refreshControl)
-        }
     }
 }
