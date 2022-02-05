@@ -106,7 +106,9 @@ final class ViewController: UIViewController {
         
         getWeatherImageData(with: iconId) { data in
             self.convert(with: data) { image in
-                self.currentWeatherImageView.image = image
+                DispatchQueue.main.async {
+                    self.currentWeatherImageView.image = image
+                }
             }
         }
         
