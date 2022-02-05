@@ -202,8 +202,8 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
               let weatherInfo = fiveDaysWeatherInfo.list[indexPath.row].weather.first else {
                   return UITableViewCell()
               }
-        
-        let celsius = convertFahrenheitToCelsius(fahrenheit: fiveDaysWeatherInfo.list[indexPath.row].main.temperature)
+        let fahrenheit = fiveDaysWeatherInfo.list[indexPath.row].main.temperature
+        let celsius = convertFahrenheitToCelsius(fahrenheit: fahrenheit)
         let dateFormatter = DateFormatter()
         
         getWeatherImageData(with: weatherInfo.icon) { data in
