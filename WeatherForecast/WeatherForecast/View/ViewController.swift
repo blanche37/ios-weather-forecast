@@ -21,6 +21,7 @@ final class ViewController: UIViewController {
         tableView.dataSource = self
         tableView.register(WeatherInfoCell.self, forCellReuseIdentifier: WeatherInfoCell.cellIdentifier)
         tableView.tableHeaderView = self.tableViewHeaderView
+        tableView.backgroundColor = .clear
         return tableView
     }()
     
@@ -62,7 +63,6 @@ final class ViewController: UIViewController {
         addObservers()
         addSubviews()
         configureLayout()
-        setupBackgroundImage()
     }
     
     // MARK: - Methods
@@ -110,11 +110,6 @@ final class ViewController: UIViewController {
             self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
             self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)"
         }
-    }
-    
-    private func setupBackgroundImage() {
-        self.view.addBackground(imageName: "sky")
-        self.tableView.backgroundColor = .clear
     }
     
     private func addSubviews() {
@@ -221,15 +216,5 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         return 50
-    }
-}
-
-extension UIView {
-    func addBackground(imageName: String) {
-        let imageViewBackground = UIImageView(frame: UIScreen.main.bounds)
-        imageViewBackground.image = UIImage(named: imageName)
-        imageViewBackground.contentMode = .scaleToFill
-        self.addSubview(imageViewBackground)
-        self.sendSubviewToBack(imageViewBackground)
     }
 }
