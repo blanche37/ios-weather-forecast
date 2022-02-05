@@ -30,6 +30,7 @@ final class ViewController: UIViewController {
         tableView.tableHeaderView = self.tableViewHeaderView
         tableView.refreshControl = self.refreshControl
         tableView.backgroundColor = .clear
+        tableView.separatorColor = .lightGray
         return tableView
     }()
     
