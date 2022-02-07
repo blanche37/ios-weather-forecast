@@ -8,7 +8,7 @@ import UIKit
 import Alamofire
 import SnapKit
 
-final class ViewController: UIViewController {
+final class WeatherInfoViewController: UIViewController {
     // MARK: - Properties
     private let locationManager = LocationManager()
     private lazy var tableViewHeaderView = UIView()
@@ -203,7 +203,7 @@ final class ViewController: UIViewController {
 }
 
 // MARK: - TableView Protocol
-extension ViewController: UITableViewDelegate, UITableViewDataSource {
+extension WeatherInfoViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier,
                                                        for: indexPath) as? WeatherInfoCell,
