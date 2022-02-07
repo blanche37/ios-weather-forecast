@@ -8,12 +8,11 @@ import UIKit
 import Alamofire
 import SnapKit
 
-final class WeatherInfoViewController: UIViewController {
+final class WeatherInfoViewController: UIViewController, ImageConvertable, CelsiusConvertable {
     // MARK: - Properties
     private let locationManager = LocationManager()
-    private lazy var tableViewHeaderView = UIView()
-    private let currentWeatherImageView = UIImageView()
     private static let dateFormatter = DateFormatManager()
+    private lazy var tableViewHeaderView = WeatherInfoHeaderView()
     
     private let refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -34,43 +33,11 @@ final class WeatherInfoViewController: UIViewController {
         return tableView
     }()
     
-    private let addressLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 15)
-        label.textColor = .lightGray
-        return label
-    }()
-    
-    private let temperatureRangeLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.systemFont(ofSize: 15)
-        label.textColor = .lightGray
-        return label
-    }()
-    
-    private let currentTemperatureLabel: UILabel = {
-        let label = UILabel()
-        label.font = UIFont.boldSystemFont(ofSize: 24)
-        label.textColor = .white
-        return label
-    }()
-    
-    private lazy var stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .vertical
-        stackView.spacing = 10
-        stackView.alignment = .leading
-        stackView.distribution = .equalSpacing
-        [self.addressLabel, self.temperatureRangeLabel, self.currentTemperatureLabel]
-            .forEach { stackView.addArrangedSubview($0) }
-        return stackView
-    }()
-    
     // MARK: - LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
         setBackgroundImage()
-        addObservers()
+        addObserver()
         addSubviews()
         configureLayout()
     }
@@ -80,14 +47,10 @@ final class WeatherInfoViewController: UIViewController {
         self.view.addBackground(imageName: "seoul")
     }
     
-    private func addObservers() {
+    private func addObserver() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(refreshTableView(_:)),
                                                name: Notification.Name.dataIsNotNil,
-                                               object: nil)
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(setupTableViewHeaderView),
-                                               name: Notification.Name.completion,
                                                object: nil)
     }
     
@@ -97,35 +60,8 @@ final class WeatherInfoViewController: UIViewController {
         }
     }
     
-    @objc func setupTableViewHeaderView(_ notification: Notification) {
-        guard let weatherInfo = locationManager.currentWeatherInfo.flatMap({ $0.weather.first }),
-              let temperatureInfo = locationManager.currentWeatherInfo.map({ $0.main }) else {
-            return
-        }
-        
-        let iconId = weatherInfo.icon
-        
-        getWeatherImageData(with: iconId) { data in
-            self.convert(with: data) { image in
-                DispatchQueue.main.async {
-                    self.currentWeatherImageView.image = image
-                }
-            }
-        }
-        
-        let maxCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMaximum)
-        let minCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMinimum)
-        let currentCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperature)
-        
-        self.addressLabel.text = self.locationManager.address
-        self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
-        self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)°"
-    }
-    
     private func addSubviews() {
         view.addSubview(tableView)
-        tableViewHeaderView.addSubview(currentWeatherImageView)
-        tableViewHeaderView.addSubview(stackView)
     }
     
     private func configureLayout() {
@@ -137,52 +73,6 @@ final class WeatherInfoViewController: UIViewController {
             make.width.equalTo(self.tableView)
             make.height.equalTo(100)
         }
-        
-        currentWeatherImageView.snp.makeConstraints { make in
-            make.width.height.equalTo(80)
-            make.leading.top.equalTo(self.tableViewHeaderView).offset(10)
-        }
-        
-        stackView.snp.makeConstraints { make in
-            make.leading.equalTo(currentWeatherImageView.snp.trailing).offset(10)
-            make.top.equalToSuperview().offset(10)
-            make.bottom.equalToSuperview().offset(-10)
-        }
-    }
-    
-    private func getWeatherImageData(with iconId: String, completion: @escaping (Data) -> Void) {
-        do {
-            let weatherImageURL = try URLs.getImageURL(with: iconId)
-            AF.request(weatherImageURL, method: .get)
-                .validate()
-                .responseData { response in
-                    switch response.result {
-                    case let .success(data):
-                        completion(data)
-                    case let .failure(error):
-                        print(error)
-                    }
-                }
-        } catch {
-            print(error)
-        }
-    }
-    
-    private func convert(with data: Data, completion: @escaping (UIImage) -> Void) {
-        DispatchQueue.global().async {
-            guard let weatherImage = UIImage(data: data) else {
-                return
-            }
-            completion(weatherImage)
-        }
-    }
-    
-    private func convertFahrenheitToCelsius(fahrenheit: Double) -> Double {
-        let celsius = UnitTemperature.celsius.converter.value(
-            fromBaseUnitValue: fahrenheit
-        )
-        let roundedNumber = round(celsius * 10) / 10
-        return roundedNumber
     }
     
     // MARK: - Refresh Control

@@ -12,6 +12,7 @@ final class LocationManager: CLLocationManager {
     var address: String?
     var fiveDaysWeatherInfo: FiveDaysForecast?
     var currentWeatherInfo: CurrentWeather?
+    static let shared = LocationManager()
     
     private func askUserLocation() {
         self.requestWhenInUseAuthorization()
