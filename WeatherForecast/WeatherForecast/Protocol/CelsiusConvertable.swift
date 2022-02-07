@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol CelsiusConvertable { }
+protocol CelsiusConvertable: AnyObject { }
 
 extension CelsiusConvertable {
     func convertFahrenheitToCelsius(fahrenheit: Double) -> Double {
