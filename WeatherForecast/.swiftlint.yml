@@ -2,11 +2,12 @@ excluded:
 - Pods
 - WeatherForecast/AppLifeCycle
 - WeatherForecast/Model
-- WeatherForecast/NetworkLayer/DecodingModel
+- WeatherForecast/NetworkLayer/ServerModel
 
 disabled_rules:
 - trailing_whitespace
 - identifier_name
+- line_length
 
 opt_in_rules:
 - toggle_bool
