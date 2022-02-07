@@ -2,6 +2,7 @@ excluded:
 - Pods
 - WeatherForecast/AppLifeCycle
 - WeatherForecast/Model
+- WeatherForecast/NetworkLayer/DecodingModel
 
 disabled_rules:
 - trailing_whitespace
@@ -14,5 +15,4 @@ opt_in_rules:
 - trailing_closure
 - private_action
 - private_outlet
-- force_unwrapping
 - fatal_error_message
