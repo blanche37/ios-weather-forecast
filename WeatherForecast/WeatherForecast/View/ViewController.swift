@@ -217,13 +217,13 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         getWeatherImageData(with: weatherInfo.icon) { data in
             self.convert(with: data) { image in
-                if let cachedImage = CachingManager.fiveDaysWeatherImageCache.object(
+                if let cachedImage = CachingManager.shared.fiveDaysWeatherImageCache.object(
                     forKey: "\(weatherInfo.icon)" as NSString) {
                     DispatchQueue.main.async {
                         cell.weatherImageView.image = cachedImage
                     }
                 } else {
-                    CachingManager.cacheImage(iconId: weatherInfo.icon, image: image)
+                    CachingManager.shared.cacheImage(iconId: weatherInfo.icon, image: image)
                 }
             }
         }

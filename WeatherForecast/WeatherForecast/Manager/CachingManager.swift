@@ -7,10 +7,13 @@
 
 import UIKit
 
-struct CachingManager {
-    static var fiveDaysWeatherImageCache = NSCache<NSString, UIImage>()
+class CachingManager {
+    static let shared = CachingManager()
+    var fiveDaysWeatherImageCache = NSCache<NSString, UIImage>()
     
-    static func cacheImage(iconId: String, image: UIImage) {
-        Self.fiveDaysWeatherImageCache.setObject(image, forKey: iconId as NSString)
+    func cacheImage(iconId: String, image: UIImage) {
+        fiveDaysWeatherImageCache.setObject(image, forKey: iconId as NSString)
     }
+    
+    private init() { }
 }
