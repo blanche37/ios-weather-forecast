@@ -8,7 +8,7 @@
 import UIKit
 import SnapKit
 
-class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable {
+final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable {
     private let currentWeatherImageView = UIImageView()
     
     private let addressLabel: UILabel = {

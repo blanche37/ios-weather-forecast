@@ -7,7 +7,7 @@
 
 import UIKit
 
-class CachingManager {
+final class CachingManager {
     static let shared = CachingManager()
     var fiveDaysWeatherImageCache = NSCache<NSString, UIImage>()
     
