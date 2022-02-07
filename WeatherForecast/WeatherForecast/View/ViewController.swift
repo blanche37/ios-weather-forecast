@@ -13,6 +13,7 @@ final class ViewController: UIViewController {
     private let locationManager = LocationManager()
     private lazy var tableViewHeaderView = UIView()
     private let currentWeatherImageView = UIImageView()
+    private static let dateFormatter = DateFormatManager()
     
     private let refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
@@ -213,7 +214,6 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
         
         let fahrenheit = fiveDaysWeatherInfo.list[indexPath.row].main.temperature
         let celsius = convertFahrenheitToCelsius(fahrenheit: fahrenheit)
-        let dateFormatter = DateFormatter()
         
         getWeatherImageData(with: weatherInfo.icon) { data in
             self.convert(with: data) { image in
@@ -228,9 +228,7 @@ extension ViewController: UITableViewDelegate, UITableViewDataSource {
             }
         }
         
-        dateFormatter.dateFormat = "MM/dd HH시"
-        
-        cell.dateLabel.text = "\(dateFormatter.string(from: fiveDaysWeatherInfo.list[indexPath.row].date))"
+        cell.dateLabel.text = Self.dateFormatter.formatDate(date: fiveDaysWeatherInfo.list[indexPath.row].date)
         cell.temperatureLabel.text = "\(celsius)°"
         return cell
     }

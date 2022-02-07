@@ -13,6 +13,4 @@ struct CachingManager {
     static func cacheImage(iconId: String, image: UIImage) {
         Self.fiveDaysWeatherImageCache.setObject(image, forKey: iconId as NSString)
     }
-    
-    
 }
