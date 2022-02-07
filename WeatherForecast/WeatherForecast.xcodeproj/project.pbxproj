@@ -161,9 +161,9 @@
 			children = (
 				C79C8CF725ADDDF200EEE3F1 /* WeatherInfoViewController.swift */,
 				43EDD24F27B0DE6400280A66 /* WeatherInfoHeaderView.swift */,
+				43AE729727195A5400D01CF7 /* WeatherInfoCell.swift */,
 				43294DAD27AEF0320070D92B /* UIView+Extension.swift */,
 				43AF64692722B843009EF5FD /* FailureAlertController.swift */,
-				43AE729727195A5400D01CF7 /* WeatherInfoCell.swift */,
 			);
 			path = View;
 			sourceTree = "<group>";

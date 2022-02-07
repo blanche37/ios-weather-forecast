@@ -10,8 +10,9 @@ import SnapKit
 
 final class WeatherInfoViewController: UIViewController, ImageConvertable, CelsiusConvertable {
     // MARK: - Properties
-    private let locationManager = LocationManager()
     private static let dateFormatter = DateFormatManager()
+    
+    // MARK: - Views
     private lazy var tableViewHeaderView = WeatherInfoHeaderView()
     
     private let refreshControl: UIRefreshControl = {
@@ -76,7 +77,6 @@ final class WeatherInfoViewController: UIViewController, ImageConvertable, Celsi
     }
     
     // MARK: - Refresh Control
-    
     @objc private func refreshTableView(refreshControl: UIRefreshControl) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.tableView.reloadData()
@@ -97,7 +97,7 @@ extension WeatherInfoViewController: UITableViewDelegate, UITableViewDataSource 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier,
                                                        for: indexPath) as? WeatherInfoCell,
-              let fiveDaysWeatherInfo = locationManager.fiveDaysWeatherInfo,
+              let fiveDaysWeatherInfo = LocationManager.shared.fiveDaysWeatherInfo,
               let weatherInfo = fiveDaysWeatherInfo.list[indexPath.row].weather.first else {
                   return UITableViewCell()
               }
@@ -124,7 +124,7 @@ extension WeatherInfoViewController: UITableViewDelegate, UITableViewDataSource 
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return locationManager.fiveDaysWeatherInfo?.list.count ?? 0
+        return LocationManager.shared.fiveDaysWeatherInfo?.list.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

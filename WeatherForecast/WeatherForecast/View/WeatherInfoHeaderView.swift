@@ -60,7 +60,7 @@ final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable 
         }
     }
     
-    @objc func setupTableViewHeaderView(_ notification: Notification) {
+    @objc private func setupTableViewHeaderView(_ notification: Notification) {
         guard let weatherInfo = LocationManager.shared.currentWeatherInfo.flatMap({ $0.weather.first }),
               let temperatureInfo = LocationManager.shared.currentWeatherInfo.map({ $0.main }) else {
             return
@@ -85,7 +85,7 @@ final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable 
         self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)°"
     }
     
-    func addObserver() {
+    private func addObserver() {
         NotificationCenter.default.addObserver(self,
                                                selector: #selector(setupTableViewHeaderView),
                                                name: Notification.Name.completion,
