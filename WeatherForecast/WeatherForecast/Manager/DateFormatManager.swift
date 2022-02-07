@@ -8,7 +8,7 @@
 import Foundation
 
 final class DateFormatManager: DateFormatter {
-    func formatDate(date: Date) -> String {
+    func format(with date: Date) -> String {
         self.dateFormat = "MM/dd HH시"
         
         return self.string(from: date)

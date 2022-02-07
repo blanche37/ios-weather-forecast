@@ -125,7 +125,7 @@ extension WeatherInfoViewController: UITableViewDelegate, UITableViewDataSource 
             }
         }
         
-        cell.dateLabel.text = Self.dateFormatter.formatDate(date: fiveDaysWeatherInfo.list[indexPath.row].date)
+        cell.dateLabel.text = Self.dateFormatter.format(with: fiveDaysWeatherInfo.list[indexPath.row].date)
         cell.temperatureLabel.text = "\(celsius)°"
         return cell
     }
