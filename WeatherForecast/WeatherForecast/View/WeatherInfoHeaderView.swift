@@ -10,7 +10,7 @@ import SnapKit
 
 final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable {
     private let currentWeatherImageView = UIImageView()
-    
+    private var weatherInfo = WeatherInformation.shared
     private let addressLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 15)
@@ -61,8 +61,8 @@ final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable 
     }
     
     @objc private func setupTableViewHeaderView(_ notification: Notification) {
-        guard let weatherInfo = LocationManager.shared.currentWeatherInfo.flatMap({ $0.weather.first }),
-              let temperatureInfo = LocationManager.shared.currentWeatherInfo.map({ $0.main }) else {
+        guard let weatherInfo = self.weatherInfo.currentWeatherInfo.flatMap({ $0.weather.first }),
+              let temperatureInfo = self.weatherInfo.currentWeatherInfo.map({ $0.main }) else {
             return
         }
         
@@ -80,7 +80,7 @@ final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable 
         let minCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMinimum)
         let currentCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperature)
         
-        self.addressLabel.text = LocationManager.shared.address
+        self.addressLabel.text = self.weatherInfo.address
         self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
         self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)°"
     }
