@@ -51,8 +51,9 @@ final class WeatherInfoViewController: UIViewController, ImageConvertable, Celsi
         self.tableView.dataSource = self
         self.locationManager.delegate = self
     }
+    
     private func setBackgroundImage() {
-        self.view.addBackground(imageName: "seoul")
+        self.view.layer.contents = UIImage(named: "seoul")?.cgImage
     }
     
     private func addObserver() {
