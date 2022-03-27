@@ -5,9 +5,9 @@
 // 
 
 import UIKit
-import Alamofire
 import SnapKit
 import CoreLocation
+import Lottie
 
 final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
     // MARK: - Properties
@@ -35,11 +35,20 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
         return tableView
     }()
     
+    private var animationView: AnimationView = {
+        let view = AnimationView(name: "back")
+        view.contentMode = .scaleAspectFill
+        view.loopMode = .loop
+        view.animationSpeed = 0.5
+        return view
+    }()
+    
     // MARK: - LifeCycles
     override func viewDidLoad() {
         super.viewDidLoad()
+        animationView.play()
         setDelegate()
-        setBackgroundImage()
+//        setBackgroundImage()
         addSubviews()
         configureLayout()
     }
@@ -87,10 +96,15 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
     }
     
     private func addSubviews() {
+        view.addSubview(animationView)
         view.addSubview(tableView)
     }
     
     private func configureLayout() {
+        animationView.snp.makeConstraints { make in
+            make.edges.equalTo(self.view)
+        }
+        
         tableView.snp.makeConstraints { make in
             make.edges.equalTo(self.view.safeAreaLayoutGuide)
         }
