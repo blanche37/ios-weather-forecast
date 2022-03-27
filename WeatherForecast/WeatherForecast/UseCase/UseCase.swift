@@ -12,7 +12,7 @@ protocol UseCase {
     func readFiveDays(requestParam: [String: Any], completion: @escaping (FiveDaysForecast) -> Void)
 }
 
-class WeatherUseCase: UseCase {
+final class WeatherUseCase: UseCase {
     var repository: Repository!
     
     func readCurrent(requestParam: [String: Any], completion: @escaping (CurrentWeather) -> Void) {

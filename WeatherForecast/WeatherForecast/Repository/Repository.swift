@@ -13,9 +13,9 @@ protocol Repository {
     func readFiveDaysInfo(requestParam: [String: Any], completion: @escaping (FiveDaysForecast) -> Void)
 }
 
-class NetworkRepository: Repository {
-    let currentURL = URL(string: "https://api.openweathermap.org/data/2.5/weather")
-    let fiveDaysURL = URL(string: "https://api.openweathermap.org/data/2.5/forecast")
+final class NetworkRepository: Repository {
+    private let currentURL = URL(string: "https://api.openweathermap.org/data/2.5/weather")
+    private let fiveDaysURL = URL(string: "https://api.openweathermap.org/data/2.5/forecast")
     
     func readCurrentInfo(requestParam: [String: Any], completion: @escaping (CurrentWeather) -> Void) {
         guard let url = currentURL else {
