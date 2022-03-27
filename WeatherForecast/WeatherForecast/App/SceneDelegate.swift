@@ -22,4 +22,13 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window?.rootViewController = rootViewController
         window?.makeKeyAndVisible()
     }
+    
+    @available(iOS 13.0, *)
+    func sceneDidBecomeActive(_ scene: UIScene) {
+        guard let rootViewController = window?.rootViewController as? WeatherInfoViewController else {
+            return
+        }
+        
+        rootViewController.animationView.play()
+    }
 }

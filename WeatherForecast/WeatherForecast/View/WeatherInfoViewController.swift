@@ -34,7 +34,7 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable, Ima
         return tableView
     }()
     
-    private var animationView: AnimationView = {
+    let animationView: AnimationView = {
         let view = AnimationView(name: "back")
         view.contentMode = .scaleAspectFill
         view.loopMode = .loop
@@ -106,6 +106,23 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable, Ima
     
     // MARK: - Refresh Control
     @objc private func refreshTableView(refreshControl: UIRefreshControl) {
+//        viewModel.readCurrent(requestParam: requestParam) { [weak self] in
+//            guard let self = self else {
+//                return
+//            }
+//
+//            self.bind()
+//        }
+//
+//        viewModel.readFiveDays(requestParam: requestParam) { [weak self] in
+//            guard let self = self else {
+//                return
+//            }
+//
+//            self.viewModel.getFiveDaysImageCodes()
+//            self.tableView.reloadData()
+//        }
+        
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.tableView.reloadData()
             refreshControl.endRefreshing()
