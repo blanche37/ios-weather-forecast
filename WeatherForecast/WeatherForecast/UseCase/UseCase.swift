@@ -13,7 +13,7 @@ protocol UseCase {
 }
 
 final class WeatherUseCase: UseCase {
-    var repository: Repository!
+    private var repository: Repository!
     
     func readCurrent(requestParam: [String: Any], completion: @escaping (CurrentWeather) -> Void) {
         repository.readCurrentInfo(requestParam: requestParam, completion: completion)

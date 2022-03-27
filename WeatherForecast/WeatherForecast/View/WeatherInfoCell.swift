@@ -9,7 +9,10 @@ import UIKit
 import SnapKit
 
 final class WeatherInfoCell: UITableViewCell, CelsiusConvertable, ImageConvertable {
+    // MARK: - Properties
     static let cellIdentifier: String = "WeatherInfoCell"
+    
+    // MARK: - Views
     private let weatherImageView = UIImageView()
     
     private let dateLabel: UILabel = {
@@ -37,6 +40,7 @@ final class WeatherInfoCell: UITableViewCell, CelsiusConvertable, ImageConvertab
         return stackView
     }()
     
+    // MARK: - Methods
     private func addSubViews() {
         self.contentView.addSubview(dateLabel)
         self.contentView.addSubview(stackView)
@@ -64,13 +68,19 @@ final class WeatherInfoCell: UITableViewCell, CelsiusConvertable, ImageConvertab
         let celsius = convertFahrenheitToCelsius(fahrenheit: fahrenheit)
         
         makeImage(imageCode: imageCode) { [weak self] image in
+            guard let self = self else {
+                return
+            }
+            
             DispatchQueue.main.async {
-                self?.weatherImageView.image = image
-                self?.dateLabel.text = dateFormatter.format(with: date)
-                self?.temperatureLabel.text = "\(celsius)°"
+                self.weatherImageView.image = image
+                self.dateLabel.text = dateFormatter.format(with: date)
+                self.temperatureLabel.text = "\(celsius)°"
             }
         }
     }
+    
+    // MARK: - Initializers
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)

@@ -9,9 +9,8 @@ import SnapKit
 import CoreLocation
 import Lottie
 
-final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
+final class WeatherInfoViewController: UIViewController, CelsiusConvertable, ImageConvertable {
     // MARK: - Properties
-    private static let dateFormatter = DateFormatManager()
     private let locationManager = LocationManager()
     var viewModel: ViewModel!
 
@@ -48,7 +47,6 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
         super.viewDidLoad()
         animationView.play()
         setDelegate()
-//        setBackgroundImage()
         addSubviews()
         configureLayout()
     }
@@ -64,11 +62,12 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
             let maxCelsius = self.convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMaximum)
             let minCelsius = self.convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMinimum)
             let currentCelsius = self.convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperature)
+            
             guard let imageCode = current.weather.first?.icon else {
                 return
             }
             
-            self.viewModel.getCurrentImage(imageCode: imageCode) { image in
+            self.makeImage(imageCode: imageCode) { image in
                 DispatchQueue.main.async {
                     self.tableViewHeaderView.currentWeatherImageView.image = image
                     self.tableViewHeaderView.addressLabel.text = self.viewModel.address
@@ -83,16 +82,6 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
         self.tableView.delegate = self
         self.tableView.dataSource = self
         self.locationManager.delegate = self
-    }
-    
-    private func setBackgroundImage() {
-        self.view.layer.contents = UIImage(named: "seoul")?.cgImage
-    }
-    
-    @objc private func refreshTableView(_ notification: Notification) {
-        DispatchQueue.main.async {
-            self.tableView.reloadData()
-        }
     }
     
     private func addSubviews() {
@@ -169,8 +158,9 @@ extension WeatherInfoViewController: CLLocationManagerDelegate {
     private func convertToAddress(with location: CLLocation, locale: Locale) {
         let geoCoder = CLGeocoder()
         
-        geoCoder.reverseGeocodeLocation(location, preferredLocale: locale) { placeMarks, error in
-            guard error == nil else {
+        geoCoder.reverseGeocodeLocation(location, preferredLocale: locale) { [weak self] placeMarks, error in
+            guard let self = self,
+                error == nil else {
                 return
             }
             
@@ -198,12 +188,18 @@ extension WeatherInfoViewController: CLLocationManagerDelegate {
             "appid": "9cda367698143794391817f65f81c76e"
         ]
 
-        viewModel.readCurrent(requestParam: requestParam) {
+        viewModel.readCurrent(requestParam: requestParam) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
             self.bind()
         }
         
-        viewModel.readFiveDays(requestParam: requestParam) {
-            print(self.viewModel.fiveDaysInfo)
+        viewModel.readFiveDays(requestParam: requestParam) { [weak self] in
+            guard let self = self else {
+                return
+            }
             
             self.viewModel.getFiveDaysImageCodes()
             self.tableView.reloadData()

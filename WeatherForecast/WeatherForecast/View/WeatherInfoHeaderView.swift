@@ -9,7 +9,9 @@ import UIKit
 import SnapKit
 
 final class WeatherInfoHeaderView: UIView, CelsiusConvertable {
+    // MARK: - Views
     let currentWeatherImageView = UIImageView()
+    
     let addressLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 15)
@@ -37,11 +39,13 @@ final class WeatherInfoHeaderView: UIView, CelsiusConvertable {
         stackView.spacing = 10
         stackView.alignment = .leading
         stackView.distribution = .equalSpacing
+        
         [self.addressLabel, self.temperatureRangeLabel, self.currentTemperatureLabel]
             .forEach { stackView.addArrangedSubview($0) }
         return stackView
     }()
     
+    // MARK: - Methods
     private func addSubviews() {
         self.addSubview(currentWeatherImageView)
         self.addSubview(stackView)
@@ -60,6 +64,7 @@ final class WeatherInfoHeaderView: UIView, CelsiusConvertable {
         }
     }
     
+    // MARK: - Initializers
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubviews()
@@ -68,6 +73,5 @@ final class WeatherInfoHeaderView: UIView, CelsiusConvertable {
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
-//        self.addGestureRecognizer(<#T##gestureRecognizer: UIGestureRecognizer##UIGestureRecognizer#>)
     }
 }

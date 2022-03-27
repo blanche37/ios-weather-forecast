@@ -8,7 +8,7 @@
 import Foundation
 
 final class Observable<T> {
-    var listener: ((T) -> Void)?
+    private var listener: ((T) -> Void)?
     
     var value: T {
         didSet {
