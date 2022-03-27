@@ -9,6 +9,7 @@ import Foundation
 import Alamofire
 
 protocol ViewModel {
+    var useCase: UseCase! { get set }
     var currentInfo: Observable<CurrentWeather> { get set }
     var fiveDaysInfo: Observable<FiveDaysForecast> { get set }
     var address: String { get set }
@@ -21,7 +22,7 @@ protocol ViewModel {
 
 final class WeatherViewModel: ViewModel {
     // MARK: - Properties
-    private var useCase: UseCase!
+    var useCase: UseCase!
     var currentInfo: Observable<CurrentWeather> = Observable(CurrentWeather(coordination: Coordinate(longitude: 0, lattitude: 0), weather: [], main: Main(temperatureMinimum: 0, temperatureMaximum: 0, temperature: 0)))
     var fiveDaysInfo: Observable<FiveDaysForecast> = Observable(FiveDaysForecast(list: []))
     var address: String = ""

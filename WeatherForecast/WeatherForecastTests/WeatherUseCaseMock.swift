@@ -1,20 +1,16 @@
 //
-//  UseCase.swift
-//  WeatherForecast
+//  NetworkRepositoryMock.swift
+//  WeatherForecastTests
 //
-//  Created by yun on 2022/02/05.
+//  Created by yun on 2022/03/28.
 //
 
 import Foundation
+import Alamofire
 
-protocol UseCase {
-    var repository: Repository! { get set }
-    
-    func readCurrent(requestParam: [String: Any], completion: @escaping (CurrentWeather) -> Void)
-    func readFiveDays(requestParam: [String: Any], completion: @escaping (FiveDaysForecast) -> Void)
-}
+@testable import WeatherForecast
 
-final class WeatherUseCase: UseCase {
+class WeatherUseCaseMock: UseCase {
     var repository: Repository!
     
     func readCurrent(requestParam: [String: Any], completion: @escaping (CurrentWeather) -> Void) {
