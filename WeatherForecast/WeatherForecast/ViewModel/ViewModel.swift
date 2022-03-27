@@ -11,7 +11,7 @@ import Alamofire
 protocol ViewModel {
     var currentInfo: Observable<CurrentWeather> { get set }
     var fiveDaysInfo: Observable<FiveDaysForecast> { get set }
-    var address: Observable<String> { get set }
+    var address: String { get set }
     var fiveDaysImageCodes: [String] { get set }
     
     func readCurrent(requestParam: [String: Any], completion: @escaping () -> Void)
@@ -27,7 +27,7 @@ class WeatherViewModel: ViewModel {
     
     var currentInfo: Observable<CurrentWeather> = Observable(CurrentWeather(coordination: Coordinate(longitude: 0, lattitude: 0), weather: [], main: Main(temperatureMinimum: 0, temperatureMaximum: 0, temperature: 0)))
     var fiveDaysInfo: Observable<FiveDaysForecast> = Observable(FiveDaysForecast(list: []))
-    var address: Observable<String> = Observable("")
+    var address: String = ""
     var fiveDaysImageCodes = [String]()
     
     func readCurrent(requestParam: [String: Any], completion: @escaping () -> Void) {

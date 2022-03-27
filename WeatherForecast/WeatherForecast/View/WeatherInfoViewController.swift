@@ -71,7 +71,7 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
             self.viewModel.getCurrentImage(imageCode: imageCode) { image in
                 DispatchQueue.main.async {
                     self.tableViewHeaderView.currentWeatherImageView.image = image
-                    self.tableViewHeaderView.addressLabel.text = self.viewModel.address.value
+                    self.tableViewHeaderView.addressLabel.text = self.viewModel.address
                     self.tableViewHeaderView.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
                     self.tableViewHeaderView.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)°"
                 }
@@ -179,7 +179,7 @@ extension WeatherInfoViewController: CLLocationManagerDelegate {
                       return
                   }
             
-            self.viewModel.address.value = address
+            self.viewModel.address = address
         }
     }
     

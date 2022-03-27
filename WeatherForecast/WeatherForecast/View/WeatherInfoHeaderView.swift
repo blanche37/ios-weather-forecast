@@ -68,5 +68,6 @@ final class WeatherInfoHeaderView: UIView, CelsiusConvertable {
 
     required init?(coder: NSCoder) {
         super.init(coder: coder)
+//        self.addGestureRecognizer(<#T##gestureRecognizer: UIGestureRecognizer##UIGestureRecognizer#>)
     }
 }
