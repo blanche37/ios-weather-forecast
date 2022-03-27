@@ -13,7 +13,6 @@ opt_in_rules:
 - toggle_bool
 - multiline_function_chains
 - weak_delegate
-- trailing_closure
 - private_action
 - private_outlet
 - fatal_error_message

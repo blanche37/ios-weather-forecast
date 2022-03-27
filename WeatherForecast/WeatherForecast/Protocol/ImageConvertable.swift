@@ -2,7 +2,7 @@
 //  ImageConvertable.swift
 //  WeatherForecast
 //
-//  Created by yun on 2022/02/07.
+//  Created by yun on 2022/03/27.
 //
 
 import UIKit
@@ -11,30 +11,38 @@ import Alamofire
 protocol ImageConvertable: AnyObject { }
 
 extension ImageConvertable {
-    func getWeatherImageData(with iconId: String, completion: @escaping (Data) -> Void) {
-        do {
-            let weatherImageURL = try URLs.getImageURL(with: iconId)
-            AF.request(weatherImageURL, method: .get)
+    func makeImage(imageCode: String, completion: @escaping (UIImage) -> Void) {
+        let cachingManager = CachingManager.shared
+        
+        if let image = cachingManager.weatherImageCache.object(forKey: imageCode as NSString) {
+            completion(image)
+        } else {
+            guard let imageURL = URL(string: "https://openweathermap.org/img/w/\(imageCode).png") else {
+                return
+            }
+            
+            AF.request(imageURL, method: .get)
                 .validate()
                 .responseData { response in
                     switch response.result {
-                    case let .success(data):
-                        completion(data)
-                    case let .failure(error):
+                    case .success(let data):
+                        self.convert(with: data) { image in
+                            cachingManager.cacheImage(iconId: imageCode, image: image)
+                            completion(image)
+                        }
+                    case .failure(let error):
                         print(error)
                     }
                 }
-        } catch {
-            print(error)
         }
     }
     
-    func convert(with data: Data, completion: @escaping (UIImage) -> Void) {
+    private func convert(with data: Data, completion: @escaping (UIImage) -> Void) {
         DispatchQueue.global().async {
-            guard let weatherImage = UIImage(data: data) else {
+            guard let image = UIImage(data: data) else {
                 return
             }
-            completion(weatherImage)
+            completion(image)
         }
     }
 }

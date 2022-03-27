@@ -8,24 +8,23 @@
 import UIKit
 import SnapKit
 
-final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable {
-    private let currentWeatherImageView = UIImageView()
-    private var weatherInfo = WeatherInformation.shared
-    private let addressLabel: UILabel = {
+final class WeatherInfoHeaderView: UIView, CelsiusConvertable {
+    let currentWeatherImageView = UIImageView()
+    let addressLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 15)
         label.textColor = .lightGray
         return label
     }()
     
-    private let temperatureRangeLabel: UILabel = {
+    let temperatureRangeLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 15)
         label.textColor = .lightGray
         return label
     }()
     
-    private let currentTemperatureLabel: UILabel = {
+    let currentTemperatureLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.boldSystemFont(ofSize: 24)
         label.textColor = .white
@@ -47,6 +46,7 @@ final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable 
         self.addSubview(currentWeatherImageView)
         self.addSubview(stackView)
     }
+    
     private func configureLayout() {
         currentWeatherImageView.snp.makeConstraints { make in
             make.width.height.equalTo(80)
@@ -60,43 +60,10 @@ final class WeatherInfoHeaderView: UIView, ImageConvertable, CelsiusConvertable 
         }
     }
     
-    @objc private func setupTableViewHeaderView(_ notification: Notification) {
-        guard let weatherInfo = self.weatherInfo.currentWeatherInfo.flatMap({ $0.weather.first }),
-              let temperatureInfo = self.weatherInfo.currentWeatherInfo.map({ $0.main }) else {
-            return
-        }
-        
-        let iconId = weatherInfo.icon
-        
-        getWeatherImageData(with: iconId) { data in
-            self.convert(with: data) { image in
-                DispatchQueue.main.async {
-                    self.currentWeatherImageView.image = image
-                }
-            }
-        }
-        
-        let maxCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMaximum)
-        let minCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMinimum)
-        let currentCelsius = convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperature)
-        
-        self.addressLabel.text = self.weatherInfo.address
-        self.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
-        self.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)°"
-    }
-    
-    private func addObserver() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(setupTableViewHeaderView),
-                                               name: Notification.Name.completion,
-                                               object: nil)
-    }
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         addSubviews()
         configureLayout()
-        addObserver()
     }
 
     required init?(coder: NSCoder) {

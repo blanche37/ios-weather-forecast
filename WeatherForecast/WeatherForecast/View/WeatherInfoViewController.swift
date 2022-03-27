@@ -9,16 +9,16 @@ import Alamofire
 import SnapKit
 import CoreLocation
 
-final class WeatherInfoViewController: UIViewController, ImageConvertable, CelsiusConvertable {
+final class WeatherInfoViewController: UIViewController, CelsiusConvertable {
     // MARK: - Properties
     private static let dateFormatter = DateFormatManager()
-    private var weatherInfo = WeatherInformation.shared
     private let locationManager = LocationManager()
-    
+    var viewModel: ViewModel!
+
     // MARK: - Views
     private lazy var tableViewHeaderView = WeatherInfoHeaderView()
     
-    private let refreshControl: UIRefreshControl = {
+    private lazy var refreshControl: UIRefreshControl = {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshTableView(refreshControl:)), for: .valueChanged)
         refreshControl.backgroundColor = .clear
@@ -40,12 +40,36 @@ final class WeatherInfoViewController: UIViewController, ImageConvertable, Celsi
         super.viewDidLoad()
         setDelegate()
         setBackgroundImage()
-        addObserver()
         addSubviews()
         configureLayout()
     }
     
     // MARK: - Methods
+    private func bind() {
+        viewModel.currentInfo.bind(listener: { [weak self] current in
+            guard let self = self else {
+                return
+            }
+            
+            let temperatureInfo = current.main
+            let maxCelsius = self.convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMaximum)
+            let minCelsius = self.convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperatureMinimum)
+            let currentCelsius = self.convertFahrenheitToCelsius(fahrenheit: temperatureInfo.temperature)
+            guard let imageCode = current.weather.first?.icon else {
+                return
+            }
+            
+            self.viewModel.getCurrentImage(imageCode: imageCode) { image in
+                DispatchQueue.main.async {
+                    self.tableViewHeaderView.currentWeatherImageView.image = image
+                    self.tableViewHeaderView.addressLabel.text = self.viewModel.address.value
+                    self.tableViewHeaderView.temperatureRangeLabel.text = "최저 \(round(minCelsius * 10) / 10)° 최고 \(round(maxCelsius * 10) / 10)°"
+                    self.tableViewHeaderView.currentTemperatureLabel.text = "\(round(currentCelsius * 10) / 10)°"
+                }
+            }
+        })
+    }
+    
     private func setDelegate() {
         self.tableView.delegate = self
         self.tableView.dataSource = self
@@ -54,13 +78,6 @@ final class WeatherInfoViewController: UIViewController, ImageConvertable, Celsi
     
     private func setBackgroundImage() {
         self.view.layer.contents = UIImage(named: "seoul")?.cgImage
-    }
-    
-    private func addObserver() {
-        NotificationCenter.default.addObserver(self,
-                                               selector: #selector(refreshTableView(_:)),
-                                               name: Notification.Name.dataIsNotNil,
-                                               object: nil)
     }
     
     @objc private func refreshTableView(_ notification: Notification) {
@@ -104,35 +121,28 @@ final class WeatherInfoViewController: UIViewController, ImageConvertable, Celsi
 extension WeatherInfoViewController: UITableViewDelegate, UITableViewDataSource {
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         guard let cell = tableView.dequeueReusableCell(withIdentifier: WeatherInfoCell.cellIdentifier,
-                                                       for: indexPath) as? WeatherInfoCell,
-              let fiveDaysWeatherInfo = weatherInfo.fiveDaysWeatherInfo,
-              let weatherInfo = fiveDaysWeatherInfo.list[indexPath.row].weather.first else {
+                                                       for: indexPath) as? WeatherInfoCell else {
                   return UITableViewCell()
               }
         
-        let fahrenheit = fiveDaysWeatherInfo.list[indexPath.row].main.temperature
-        let celsius = convertFahrenheitToCelsius(fahrenheit: fahrenheit)
-        
-        getWeatherImageData(with: weatherInfo.icon) { data in
-            self.convert(with: data) { image in
-                if let cachedImage = CachingManager.shared.fiveDaysWeatherImageCache.object(
-                    forKey: "\(weatherInfo.icon)" as NSString) {
-                    DispatchQueue.main.async {
-                        cell.weatherImageView.image = cachedImage
-                    }
-                } else {
-                    CachingManager.shared.cacheImage(iconId: weatherInfo.icon, image: image)
-                }
+        viewModel.fiveDaysInfo.bind { fiveDays in
+            let weatherInfo = fiveDays.list[indexPath.row]
+            
+            guard let imageCode = weatherInfo.weather.first?.icon else {
+                return
             }
+            
+            let temperature = weatherInfo.main.temperature
+            let date = weatherInfo.date
+            
+            cell.bind(date: date, temperature: temperature, imageCode: imageCode)
         }
         
-        cell.dateLabel.text = Self.dateFormatter.format(with: fiveDaysWeatherInfo.list[indexPath.row].date)
-        cell.temperatureLabel.text = "\(celsius)°"
         return cell
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return weatherInfo.fiveDaysWeatherInfo?.list.count ?? 0
+        return viewModel.fiveDaysInfo.value.list.count
     }
     
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
@@ -140,43 +150,8 @@ extension WeatherInfoViewController: UITableViewDelegate, UITableViewDataSource 
     }
 }
 
+// MARK: - CLLocationManager Delegate 
 extension WeatherInfoViewController: CLLocationManagerDelegate {
-    private func parseCurrent(url: URL, param: [String: Any], completion: @escaping () -> Void) {
-        AF.request(url, method: .get, parameters: param)
-            .validate()
-            .responseData { response in
-                switch response.result {
-                case let .success(data):
-                    do {
-                        self.weatherInfo.currentWeatherInfo = try JSONDecoder().decode(CurrentWeather.self, from: data)
-                        completion()
-                    } catch {
-                        print("DecodingError")
-                    }
-                case let .failure(error):
-                    print(error)
-                }
-            }
-    }
-    
-    private func parseFiveDays(url: URL, param: [String: Any], completion: @escaping () -> Void) {
-        AF.request(url, method: .get, parameters: param)
-            .validate()
-            .responseData { response in
-                switch response.result {
-                case let .success(data):
-                    do {
-                        self.weatherInfo.fiveDaysWeatherInfo = try JSONDecoder().decode(FiveDaysForecast.self, from: data)
-                        completion()
-                    } catch {
-                        print("DecodingError")
-                    }
-                case let .failure(error):
-                    print(error)
-                }
-            }
-    }
-    
     private func convertToAddress(with location: CLLocation, locale: Locale) {
         let geoCoder = CLGeocoder()
         
@@ -190,7 +165,7 @@ extension WeatherInfoViewController: CLLocationManagerDelegate {
                       return
                   }
             
-            self.weatherInfo.address = address
+            self.viewModel.address.value = address
         }
     }
     
@@ -208,12 +183,16 @@ extension WeatherInfoViewController: CLLocationManagerDelegate {
             "lon": longitude,
             "appid": "9cda367698143794391817f65f81c76e"
         ]
-        
-        parseCurrent(url: URLs.currentURL, param: requestParam) {
-            NotificationCenter.default.post(name: Notification.Name.completion, object: nil, userInfo: nil)
+
+        viewModel.readCurrent(requestParam: requestParam) {
+            self.bind()
         }
-        parseFiveDays(url: URLs.fiveDaysURL, param: requestParam) {
-            NotificationCenter.default.post(name: Notification.Name.dataIsNotNil, object: nil, userInfo: nil)
+        
+        viewModel.readFiveDays(requestParam: requestParam) {
+            print(self.viewModel.fiveDaysInfo)
+            
+            self.viewModel.getFiveDaysImageCodes()
+            self.tableView.reloadData()
         }
     }
     

@@ -8,18 +8,18 @@
 import UIKit
 import SnapKit
 
-final class WeatherInfoCell: UITableViewCell {
+final class WeatherInfoCell: UITableViewCell, CelsiusConvertable, ImageConvertable {
     static let cellIdentifier: String = "WeatherInfoCell"
-    let weatherImageView = UIImageView()
+    private let weatherImageView = UIImageView()
     
-    let dateLabel: UILabel = {
+    private let dateLabel: UILabel = {
         let label = UILabel()
         label.textColor = .lightGray
         label.font = UIFont.boldSystemFont(ofSize: 17)
         return label
     }()
     
-    let temperatureLabel: UILabel = {
+    private let temperatureLabel: UILabel = {
         let label = UILabel()
         label.textAlignment = .right
         label.textColor = .white
@@ -55,6 +55,20 @@ final class WeatherInfoCell: UITableViewCell {
         stackView.snp.makeConstraints { make in
             make.trailing.equalToSuperview().offset(-10)
             make.centerY.equalToSuperview()
+        }
+    }
+    
+    func bind(date: Date, temperature: Double, imageCode: String) {
+        let dateFormatter = DateFormatManager()
+        let fahrenheit = temperature
+        let celsius = convertFahrenheitToCelsius(fahrenheit: fahrenheit)
+        
+        makeImage(imageCode: imageCode) { [weak self] image in
+            DispatchQueue.main.async {
+                self?.weatherImageView.image = image
+                self?.dateLabel.text = dateFormatter.format(with: date)
+                self?.temperatureLabel.text = "\(celsius)°"
+            }
         }
     }
     
