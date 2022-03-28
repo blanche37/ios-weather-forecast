@@ -7,14 +7,19 @@
 import XCTest
 
 class WeatherForecastUITests: XCTestCase {
+    private var app: XCUIApplication!
+    private var refreshControl: XCUIElement!
+    private var tableView: XCUIElement!
     
     override func setUpWithError() throws {
+        try super.setUpWithError()
         continueAfterFailure = false
-    }
-    
-    func testExample() throws {
+        
         let app = XCUIApplication()
         app.launch()
+        
+        refreshControl = app.otherElements["refresh"]
+        tableView = app.tables["table"]
     }
     
     func testLaunchPerformance() throws {
@@ -23,9 +28,5 @@ class WeatherForecastUITests: XCTestCase {
                 XCUIApplication().launch()
             }
         }
-    }
-    
-    func testRefreshControl() {
-        
     }
 }

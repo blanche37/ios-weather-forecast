@@ -21,6 +21,7 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable, Ima
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshTableView(refreshControl:)), for: .valueChanged)
         refreshControl.backgroundColor = .clear
+        refreshControl.accessibilityIdentifier = "refresh"
         return refreshControl
     }()
     
@@ -31,6 +32,7 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable, Ima
         tableView.refreshControl = self.refreshControl
         tableView.backgroundColor = .clear
         tableView.separatorColor = .lightGray
+        tableView.accessibilityIdentifier = "table"
         return tableView
     }()
     
