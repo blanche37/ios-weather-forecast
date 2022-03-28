@@ -49,6 +49,22 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable, Ima
         setDelegate()
         addSubviews()
         configureLayout()
+        viewModel.readCurrent(requestParam: viewModel.requestParam) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            self.bind()
+        }
+        
+        viewModel.readFiveDays(requestParam: viewModel.requestParam) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            self.viewModel.getFiveDaysImageCodes()
+            self.tableView.reloadData()
+        }
     }
     
     // MARK: - Methods
@@ -106,22 +122,15 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable, Ima
     
     // MARK: - Refresh Control
     @objc private func refreshTableView(refreshControl: UIRefreshControl) {
-//        viewModel.readCurrent(requestParam: requestParam) { [weak self] in
-//            guard let self = self else {
-//                return
-//            }
-//
-//            self.bind()
-//        }
-//
-//        viewModel.readFiveDays(requestParam: requestParam) { [weak self] in
-//            guard let self = self else {
-//                return
-//            }
-//
-//            self.viewModel.getFiveDaysImageCodes()
-//            self.tableView.reloadData()
-//        }
+        viewModel.readCurrent(requestParam: viewModel.requestParam, completion: nil)
+        viewModel.readFiveDays(requestParam: viewModel.requestParam) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            self.viewModel.getFiveDaysImageCodes()
+            self.tableView.reloadData()
+        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             self.tableView.reloadData()
@@ -199,28 +208,8 @@ extension WeatherInfoViewController: CLLocationManagerDelegate {
         
         convertToAddress(with: location, locale: locale)
 
-        let requestParam: [String: Any] = [
-            "lat": latitude,
-            "lon": longitude,
-            "appid": "9cda367698143794391817f65f81c76e"
-        ]
-
-        viewModel.readCurrent(requestParam: requestParam) { [weak self] in
-            guard let self = self else {
-                return
-            }
-            
-            self.bind()
-        }
-        
-        viewModel.readFiveDays(requestParam: requestParam) { [weak self] in
-            guard let self = self else {
-                return
-            }
-            
-            self.viewModel.getFiveDaysImageCodes()
-            self.tableView.reloadData()
-        }
+        viewModel.requestParam.updateValue(latitude, forKey: "lat")
+        viewModel.requestParam.updateValue(longitude, forKey: "lon")
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
