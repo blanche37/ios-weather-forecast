@@ -26,21 +26,35 @@ MVVM
 
 ### FlowChart
 
+---
+
 ## 학습내용 
 1.Singleton과 static 프로퍼티의 차이점과 어떤 경우에 사용하는 것이 바람직한지 생각해보았습니다. 예를들어, `CachingManager`의 경우 초기화될경우 그동안 저장했던 데이터가 날아갈 수도 있다는 생각에 `singleton`으로 구현하여, 이니셜라이저에 대한 접근을 막았습니다. 이와같이 인스턴스를 하나만 가져야 할때가 아니라면, static이나 공유인스턴스를 사용할 수 있겠다는 생각을 해 보았습니다.
+
 2.처음에는 MVC로 개발을 했었는데, `ViewController`에 View와 관련된 코드, delegate와 관련된 코드 등이 전부 포함되어, 가독성이 상당히 떨어지는 느낌을 받아, MVVM으로 리펙토링을 진행하였습니다. 데이터 바인딩은 `Observable`클래스를 활용하였습니다.
+
 3.`Clean Architecture`에 대한 고민을 해보고, 리펙토링을 진행하였습니다.
+
 4.동적인 배경화면을 적용해보고 싶어서 `Lottie`에 대해서 알아보았습니다.
+
 5.`UITest`와 `UnitTest`에 대해서 고민해 보았습니다.
 
 ## Implementation
 1.`SwiftLint`로 나만의 룰 만들어보기
+
 2.`SnapKit`을 활용한 코드로 오토레이아웃 구현
+
 3.`CLLocationManager`를 활용해서 위치정보 받아오기
+
 4.`Alamofire`를 통한 네트워킹
+
 5.`Observable`타입을 활용한 데이터바인딩 
+
 6.`NSCache`를 활용한 이미지 캐시 구현
+
 7.`Lottie`를 활용해 배경 애니메이션 적용해보기
+
+---
 
 ### 1.SwiftLint를 사용한 룰 적용
 SwiftLint로 나만의 룰을 만들어 적용하였습니다.
@@ -48,7 +62,7 @@ SwiftLint로 나만의 룰을 만들어 적용하였습니다.
 
 ### 2.SnapKit을 활용한 코드로 오토레이아웃 구현
 이전에 외부라이브러리 사용없이 코드로 오토레이아웃을 구현해본적이 있어서,
-```swift=
+```swift
 view.translatesAutoresizingMaskIntoConstraints = false
 ```
 와 같은 중복코드를 줄이고, 선언형으로 오토레이아웃을 작성하기 위해, `SnapKit`을 활용하였습니다.
