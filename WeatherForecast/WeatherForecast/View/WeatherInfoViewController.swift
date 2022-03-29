@@ -51,22 +51,6 @@ final class WeatherInfoViewController: UIViewController, CelsiusConvertable, Ima
         setDelegate()
         addSubviews()
         configureLayout()
-        viewModel.readCurrent(requestParam: viewModel.requestParam) { [weak self] in
-            guard let self = self else {
-                return
-            }
-            
-            self.bind()
-        }
-        
-        viewModel.readFiveDays(requestParam: viewModel.requestParam) { [weak self] in
-            guard let self = self else {
-                return
-            }
-            
-            self.viewModel.getFiveDaysImageCodes()
-            self.tableView.reloadData()
-        }
     }
     
     // MARK: - Methods
@@ -212,6 +196,23 @@ extension WeatherInfoViewController: CLLocationManagerDelegate {
 
         viewModel.requestParam.updateValue(latitude, forKey: "lat")
         viewModel.requestParam.updateValue(longitude, forKey: "lon")
+        
+        viewModel.readCurrent(requestParam: viewModel.requestParam) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            self.bind()
+        }
+        
+        viewModel.readFiveDays(requestParam: viewModel.requestParam) { [weak self] in
+            guard let self = self else {
+                return
+            }
+            
+            self.viewModel.getFiveDaysImageCodes()
+            self.tableView.reloadData()
+        }
     }
     
     func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
